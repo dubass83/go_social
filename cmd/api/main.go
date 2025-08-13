@@ -1,12 +1,13 @@
 package main
 
 import (
+	"github.com/dubass83/go_social/internal/env"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
 	conf := config{
-		addr: ":8080",
+		addr: env.GetString("API_ADDR", ":8080"),
 	}
 	app := &application{
 		config: conf,
