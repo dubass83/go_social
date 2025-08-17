@@ -58,6 +58,6 @@ func (app *application) run(mux http.Handler) error {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
 	}
-	log.Info().Msgf("Starting server on %s", app.config.addr)
+	log.Info().Msgf("starting server on %s", app.config.addr)
 	return srv.ListenAndServe()
 }

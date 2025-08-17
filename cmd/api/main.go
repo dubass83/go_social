@@ -28,6 +28,8 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
+	defer db.Close()
+	log.Info().Msg("database connection established")
 
 	store := store.NewStorage(db)
 
