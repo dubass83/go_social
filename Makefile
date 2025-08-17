@@ -1,5 +1,5 @@
-# include .env
-# export
+include .env
+export
 BINARY_NAME=myapp
 
 ## build: Build binary
@@ -72,13 +72,13 @@ new_migration:
 	migrate create -ext sql -dir cmd/db/migration -seq ${name}
 
 migrate_up:
-	migrate -path cmd/db/migration -database ${DB_URL} -verbose up
+	migrate -path cmd/db/migration -database ${DB_ADDR} -verbose up
 
 migrate_up1:
-	migrate -path cmd/db/migration -database ${DB_URL} -verbose up 1
+	migrate -path cmd/db/migration -database ${DB_ADDR} -verbose up 1
 
 migrate_down:
-	migrate -path cmd/db/migration -database ${DB_URL} -verbose down
+	migrate -path cmd/db/migration -database ${DB_ADDR} -verbose down
 
 migrate_down1:
-	migrate -path cmd/db/migration -database ${DB_URL} -verbose down 1
+	migrate -path cmd/db/migration -database ${DB_ADDR} -verbose down 1
