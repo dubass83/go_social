@@ -7,6 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const version = "0.1.0"
+
 func main() {
 	conf := config{
 		addr: env.GetString("API_ADDR", ":8080"),
