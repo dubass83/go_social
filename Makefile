@@ -18,6 +18,8 @@ clean: stop_db
 	@echo "Cleaning..."
 	@go clean
 	@rm bin/${BINARY_NAME} || true
+	@rm bin/main || true
+	@rm bin/build-errors.log || true
 	@echo "Cleaned!"
 
 ## start: build and run compiled app
