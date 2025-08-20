@@ -49,3 +49,35 @@ func (ps *PostsStore) Create(ctx context.Context, post *Post) error {
 	}
 	return nil
 }
+
+func (ps *PostsStore) GetByID(ctx context.Context, id string) (*Post, error) {
+	query := `
+	SELECT id, title, content, created_at, updated_at, user_id, tags
+	FROM posts
+	WHERE id = $1
+	LIMIT 1
+	`
+
+	post := &Post{}
+
+	err := ps.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+		&post.CreatedAt,
+		&post.UpdatedAt,
+		&post.UserID,
+		pq.Array(&post.Tags),
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return post, nil
+}

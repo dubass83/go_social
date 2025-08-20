@@ -11,6 +11,7 @@ var ErrNotFound = fmt.Errorf("sql row not found in the database")
 type Storage struct {
 	Post interface {
 		Create(context.Context, *Post) error
+		GetByID(context.Context, string) (*Post, error)
 	}
 	User interface {
 		Create(context.Context, *User) error
