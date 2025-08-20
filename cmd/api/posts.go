@@ -5,7 +5,6 @@ import (
 
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog/log"
 )
 
 type PostPayload struct {
@@ -18,8 +17,8 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 	var payload PostPayload
 	err := readJSON(w, r, &payload)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read JSON")
-		writeJSONError(w, http.StatusBadRequest, err.Error())
+		badRequestResponse(w, r, err)
+		return
 	}
 	post := &store.Post{
 		Title:   payload.Title,
@@ -30,14 +29,13 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := app.store.Post.Create(r.Context(), post); err != nil {
-		log.Error().Err(err).Msg("failed to create post")
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		internalServerError(w, r, err)
 		return
 	}
 
 	if err := writeJSON(w, http.StatusCreated, post); err != nil {
-		log.Error().Err(err).Msg("failed to write JSON")
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		internalServerError(w, r, err)
+		return
 	}
 }
 
@@ -48,17 +46,16 @@ func (app *application) GetPostByIdHandler(w http.ResponseWriter, r *http.Reques
 
 	post, err := app.store.Post.GetByID(ctx, postID)
 	if err != nil {
-		log.Error().Err(err).Msgf("failed to get post by id: %s", postID)
 		if err == store.ErrNotFound {
-			writeJSONError(w, http.StatusNotFound, err.Error())
+			notFoundResponse(w, r, err)
 			return
 		}
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		internalServerError(w, r, err)
 		return
 	}
 
 	if err := writeJSON(w, http.StatusOK, post); err != nil {
-		log.Error().Err(err).Msg("failed to write JSON")
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		internalServerError(w, r, err)
+		return
 	}
 }
