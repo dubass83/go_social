@@ -1,3 +1,5 @@
+.PHONY: *
+
 include .env
 export
 BINARY_NAME=myapp
