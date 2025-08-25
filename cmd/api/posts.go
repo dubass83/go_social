@@ -8,8 +8,8 @@ import (
 )
 
 type PostPayload struct {
-	Title   string   `json:"title"`
-	Content string   `json:"content"`
+	Title   string   `json:"title" validate:"required,min=2,max=100"`
+	Content string   `json:"content" validate:"required,min=2,max=1000"`
 	Tags    []string `json:"tags"`
 }
 
