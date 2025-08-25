@@ -11,7 +11,7 @@ build:
 	@echo "Built!"
 
 ## run: go run
-run: start_db
+run: start_db migrate_up
 	@echo "Starting..."
 	go run ./cmd/api
 
