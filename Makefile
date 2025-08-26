@@ -11,7 +11,7 @@ build:
 	@echo "Built!"
 
 ## run: go run
-run: start_db migrate_up
+run: start_db
 	@echo "Starting..."
 	go run ./cmd/api
 
@@ -50,7 +50,7 @@ test: start_db
 race_test: start_db
 	go test -race -v ./...
 
-start_db:
+start_db: migrate_up
 	@echo "Starting database..."
 	@docker-compose up -d db
 	while ! docker-compose exec db pg_isready -h localhost -p 5432; do sleep 1; done
