@@ -11,7 +11,7 @@ build:
 	@echo "Built!"
 
 ## run: go run
-run: start_db
+run: start_db migrate_up
 	@echo "Starting..."
 	go run ./cmd/api
 
@@ -25,7 +25,7 @@ clean: stop_db
 	@echo "Cleaned!"
 
 ## start: build and run compiled app
-start: build start_db
+start: build start_db migrate_up
 	@echo "Starting..."
 	@env ./bin/${BINARY_NAME} &
 	@echo "Started!"
@@ -40,17 +40,17 @@ stop: stop_db
 restart: stop start
 
 ## repl: starts the application in REPL mode
-repl: start_db
+repl: start_db migrate_up
 	air
 
 ## test: runs all tests
-test: start_db
+test: start_db migrate_up
 	go test -v ./...
 
 race_test: start_db
 	go test -race -v ./...
 
-start_db: migrate_up
+start_db:
 	@echo "Starting database..."
 	@docker-compose up -d db
 	while ! docker-compose exec db pg_isready -h localhost -p 5432; do sleep 1; done
