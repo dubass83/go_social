@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dubass83/go_social/internal/store"
@@ -10,6 +11,12 @@ import (
 type PostPayload struct {
 	Title   string   `json:"title" validate:"required,min=2,max=100"`
 	Content string   `json:"content" validate:"required,min=2,max=1000"`
+	Tags    []string `json:"tags"`
+}
+
+type UpdatePostPayload struct {
+	Title   string   `json:"title" validate:"max=100"`
+	Content string   `json:"content" validate:"max=1000"`
 	Tags    []string `json:"tags"`
 }
 
@@ -66,6 +73,81 @@ func (app *application) GetPostByIdHandler(w http.ResponseWriter, r *http.Reques
 	post.Comments = comments
 
 	if err := writeJSON(w, http.StatusOK, post); err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+}
+
+func (app *application) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "postID")
+	ctx := r.Context()
+
+	if err := app.store.Post.DeleteByID(ctx, postID); err != nil {
+		if err == store.ErrNotFound {
+			notFoundResponse(w, r, err)
+			return
+		}
+		internalServerError(w, r, err)
+		return
+	}
+	data := map[string]string{
+		"message": fmt.Sprintf("post with id %s was successfully deleted from the database", postID),
+	}
+	if err := writeJSON(w, http.StatusOK, data); err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+}
+
+func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "postID")
+
+	ctx := r.Context()
+
+	post, err := app.store.Post.GetByID(ctx, postID)
+	if err != nil {
+		if err == store.ErrNotFound {
+			notFoundResponse(w, r, err)
+			return
+		}
+		internalServerError(w, r, err)
+		return
+	}
+
+	var payload UpdatePostPayload
+	if err := readJSON(w, r, &payload); err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+	if err = validate.Struct(payload); err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
+	if payload.Content != "" {
+		post.Content = payload.Content
+	}
+	if payload.Title != "" {
+		post.Title = payload.Title
+	}
+	if payload.Tags != nil {
+		post.Tags = payload.Tags
+	}
+
+	updatedPost := &store.Post{
+		Title:   post.Title,
+		Content: post.Content,
+		Tags:    post.Tags,
+		// TODO: add user ID from auth
+		UserID: 1,
+	}
+
+	if err := app.store.Post.Update(ctx, post.ID, updatedPost); err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, updatedPost); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
