@@ -11,7 +11,7 @@ func (app *application) HealthCheckHandler(w http.ResponseWriter, r *http.Reques
 		"status":  "ok",
 		"version": version,
 	}
-	err := writeJSON(w, http.StatusOK, data)
+	err := app.jsonResponse(w, http.StatusOK, data)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to write JSON response")
 		writeJSONError(w, http.StatusInternalServerError, err.Error())

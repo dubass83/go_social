@@ -49,7 +49,7 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := writeJSON(w, http.StatusCreated, post); err != nil {
+	if err := app.jsonResponse(w, http.StatusCreated, post); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
@@ -68,7 +68,7 @@ func (app *application) GetPostByIdHandler(w http.ResponseWriter, r *http.Reques
 	}
 	post.Comments = comments
 
-	if err := writeJSON(w, http.StatusOK, post); err != nil {
+	if err := app.jsonResponse(w, http.StatusOK, post); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
@@ -89,7 +89,7 @@ func (app *application) DeletePostHandler(w http.ResponseWriter, r *http.Request
 	data := map[string]string{
 		"message": fmt.Sprintf("post with id %s was successfully deleted from the database", postID),
 	}
-	if err := writeJSON(w, http.StatusOK, data); err != nil {
+	if err := app.jsonResponse(w, http.StatusOK, data); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
@@ -134,7 +134,7 @@ func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := writeJSON(w, http.StatusOK, updatedPost); err != nil {
+	if err := app.jsonResponse(w, http.StatusOK, updatedPost); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
