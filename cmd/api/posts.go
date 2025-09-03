@@ -129,7 +129,7 @@ func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request
 		UserID: 1,
 	}
 
-	if err := app.store.Post.Update(ctx, post.ID, updatedPost); err != nil {
+	if err := app.store.Post.Update(ctx, post.ID, post.Version, updatedPost); err != nil {
 		internalServerError(w, r, err)
 		return
 	}

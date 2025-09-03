@@ -14,6 +14,7 @@ type Post struct {
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
 	UserID    int64     `json:"user_id"`
+	Version   int64     `json:"version"`
 	Tags      []string  `json:"tags"`
 	Comments  []Comment `json:"comments"`
 }
@@ -53,7 +54,7 @@ func (ps *PostsStore) Create(ctx context.Context, post *Post) error {
 
 func (ps *PostsStore) GetByID(ctx context.Context, id string) (*Post, error) {
 	query := `
-	SELECT id, title, content, created_at, updated_at, user_id, tags
+	SELECT id, title, content, created_at, updated_at, user_id, version, tags
 	FROM posts
 	WHERE id = $1
 	LIMIT 1
@@ -72,6 +73,7 @@ func (ps *PostsStore) GetByID(ctx context.Context, id string) (*Post, error) {
 		&post.CreatedAt,
 		&post.UpdatedAt,
 		&post.UserID,
+		&post.Version,
 		pq.Array(&post.Tags),
 	)
 	if err != nil {
@@ -98,10 +100,11 @@ func (ps *PostsStore) DeleteByID(ctx context.Context, id string) error {
 	return nil
 }
 
-func (ps *PostsStore) Update(ctx context.Context, postID int64, post *Post) error {
+func (ps *PostsStore) Update(ctx context.Context, postID int64, version int64, post *Post) error {
 	query := `
-	   UPDATE posts SET title = $1, content = $2, tags = $3, updated_at = NOW()
-       WHERE id = $4 RETURNING id, user_id, created_at, updated_at
+	   UPDATE posts SET title = $1, content = $2, tags = $3, updated_at = NOW(), version = version + 1
+       WHERE id = $4 AND version = $5
+       RETURNING id, user_id, created_at, updated_at, version
 	`
 	err := ps.db.QueryRowContext(
 		ctx,
@@ -110,11 +113,13 @@ func (ps *PostsStore) Update(ctx context.Context, postID int64, post *Post) erro
 		post.Content,
 		pq.Array(post.Tags),
 		postID,
+		version,
 	).Scan(
 		&post.ID,
 		&post.UserID,
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&post.Version,
 	)
 	if err != nil {
 		return err
