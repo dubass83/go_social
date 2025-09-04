@@ -1,5 +1,6 @@
 .PHONY: *
 
+# include .env.cloud
 include .env
 export
 BINARY_NAME=myapp
