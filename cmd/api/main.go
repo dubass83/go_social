@@ -28,6 +28,7 @@ func main() {
 	)
 
 	if err != nil {
+		log.Debug().Msgf("db config: %v", conf.db)
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
 	defer db.Close()
