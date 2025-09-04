@@ -55,7 +55,7 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (app *application) GetPostByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetPostByIDHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
