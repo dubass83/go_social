@@ -1,3 +1,4 @@
+// Package store provides a data access layer for the application.
 package store
 
 import (
@@ -34,6 +35,9 @@ func (ps *PostsStore) Create(ctx context.Context, post *Post) error {
 	   INSERT INTO posts (title, content, user_id, tags)
        VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
 	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := ps.db.QueryRowContext(
 		ctx,
 		query,
@@ -59,6 +63,9 @@ func (ps *PostsStore) GetByID(ctx context.Context, id string) (*Post, error) {
 	WHERE id = $1
 	LIMIT 1
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	post := &Post{}
 
@@ -90,6 +97,10 @@ func (ps *PostsStore) DeleteByID(ctx context.Context, id string) error {
 	Delete FROM posts
 	WHERE id = $1
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := ps.db.QueryRowContext(ctx, query, id).Err()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -106,6 +117,9 @@ func (ps *PostsStore) Update(ctx context.Context, postID int64, version int64, p
        WHERE id = $4 AND version = $5
        RETURNING id, user_id, created_at, updated_at, version
 	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := ps.db.QueryRowContext(
 		ctx,
 		query,

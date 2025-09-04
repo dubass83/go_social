@@ -1,3 +1,4 @@
+// Package db provides a database connection pool.
 package db
 
 import (

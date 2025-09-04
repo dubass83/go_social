@@ -4,9 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
-var ErrNotFound = fmt.Errorf("sql row not found in the database")
+var (
+	ErrNotFound          = fmt.Errorf("sql row not found in the database")
+	QueryTimeoutDuration = time.Second * 5
+)
 
 type Storage struct {
 	Post interface {
