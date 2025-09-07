@@ -12,7 +12,12 @@ build:
 	@echo "Built!"
 
 ## run: go run
-run: start_db migrate_up
+run: start_db migrate_up seed
+	@echo "Starting..."
+	go run ./cmd/api
+
+## init_run: go run with initial Seeding the database
+init_run: start_db migrate_up seed
 	@echo "Starting..."
 	go run ./cmd/api
 
@@ -87,3 +92,8 @@ migrate_down:
 
 migrate_down1:
 	migrate -path cmd/db/migration -database ${DB_ADDR} -verbose down 1
+
+seed:
+	@echo "Seeding database..."
+	@go run cmd/db/seed/main.go
+	@echo "Database seeded!"
