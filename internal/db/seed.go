@@ -15,9 +15,9 @@ func Seed(store *store.Storage, num int) {
 	lg := NewLoremGenerator()
 	ctx := context.Background()
 
-	titles := TitleGenerator(lg, num)
+	words := WordsGenerator(lg, num)
 	contents := ContentGenerator(lg, num)
-	tags := TitleGenerator(lg, 20)
+	tags := WordsGenerator(lg, 20)
 	cs := CommentsGenerator(lg, num*2)
 
 	users := generateUsers(num)
@@ -29,7 +29,7 @@ func Seed(store *store.Storage, num int) {
 		}
 	}
 
-	posts := generatePosts(num, users, titles, contents, tags)
+	posts := generatePosts(num, users, words, contents, tags)
 	// Seed posts
 	for _, post := range posts {
 		err := store.Post.Create(ctx, post)
@@ -63,11 +63,11 @@ func generateComments(cs []string, users []*store.User, posts []*store.Post) []*
 	return comments
 }
 
-func generatePosts(n int, users []*store.User, titles, contents, tags []string) []*store.Post {
+func generatePosts(n int, users []*store.User, words, contents, tags []string) []*store.Post {
 	posts := make([]*store.Post, n)
 	for i := range n {
 		posts[i] = &store.Post{
-			Title:   titles[rand.Intn(len(titles))],
+			Title:   words[rand.Intn(len(words))] + " " + words[rand.Intn(len(words))] + " " + words[rand.Intn(len(words))],
 			Content: contents[rand.Intn(len(contents))],
 			UserID:  users[rand.Intn(len(users))].ID,
 			Version: 0,
@@ -120,13 +120,13 @@ func NewLoremGenerator() *lorem.Generator {
 	return g
 }
 
-// TitleGenerator generate rundom number of titles
-func TitleGenerator(g *lorem.Generator, num int) []string {
-	titles := strings.Split(g.Generate(num), " ")
+// WordsGenerator generate rundom number of words
+func WordsGenerator(g *lorem.Generator, num int) []string {
+	words := strings.Split(g.Generate(num), " ")
 	result := []string{}
-	for i := range titles {
+	for i := range words {
 		// Trim commas, and periods
-		cleaned := strings.Trim(titles[i], ",.")
+		cleaned := strings.Trim(words[i], ",.")
 		if cleaned != "" {
 			result = append(result, cleaned)
 		}
