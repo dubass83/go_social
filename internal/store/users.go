@@ -23,7 +23,7 @@ func NewUsersStore(db *sql.DB) *UsersStore {
 	}
 }
 
-func (ps *UsersStore) Create(ctx context.Context, user *User) error {
+func (us *UsersStore) Create(ctx context.Context, user *User) error {
 	query := `
 	INSERT INTO users (username, email, password)
 	VALUES ($1, $2, $3)
@@ -32,7 +32,7 @@ func (ps *UsersStore) Create(ctx context.Context, user *User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	err := ps.db.QueryRowContext(
+	err := us.db.QueryRowContext(
 		ctx,
 		query,
 		user.Username,
@@ -48,4 +48,37 @@ func (ps *UsersStore) Create(ctx context.Context, user *User) error {
 	}
 
 	return nil
+}
+
+func (us *UsersStore) GetByID(ctx context.Context, id int64) (*User, error) {
+	query := `
+    SELECT *
+    FROM users
+    WHERE ID = $1
+    `
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	user := &User{}
+
+	err := us.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+	return user, nil
 }

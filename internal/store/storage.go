@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrNotFound          = fmt.Errorf("sql row not found in the database")
-	QueryTimeoutDuration = time.Second * 5
+	QueryTimeoutDuration = 5 * time.Second
 )
 
 type Storage struct {
@@ -21,6 +21,7 @@ type Storage struct {
 	}
 	User interface {
 		Create(context.Context, *User) error
+		GetByID(context.Context, int64) (*User, error)
 	}
 	Comment interface {
 		Create(context.Context, *Comment) error
