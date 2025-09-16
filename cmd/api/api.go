@@ -69,6 +69,10 @@ func (app *application) mount() http.Handler {
 				// r.Patch("/", app.UpdatePostHandler)
 				// r.Post("/comments", app.CreateCommentToPostByIDHandler)
 			})
+
+			r.Group(func(r chi.Router) {
+				r.Get("/feed", app.GetUserFeedHandler)
+			})
 		})
 	})
 
