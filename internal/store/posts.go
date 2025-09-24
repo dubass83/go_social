@@ -4,6 +4,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/lib/pq"
 )
@@ -62,8 +63,8 @@ func (ps *PostsStore) Create(ctx context.Context, post *Post) error {
 	return nil
 }
 
-func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64) ([]*PostWithMetadata, error) {
-	query := `
+func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64, pg PaginatedFeedQuery) ([]*PostWithMetadata, error) {
+	query := fmt.Sprintf(`
 	SELECT
       p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags,
       u.username,
@@ -78,16 +79,19 @@ func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64) ([]*PostWit
       WHERE user_id = $1
       )
     GROUP BY p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags, u.username
-    ORDER BY p.id, p.created_at DESC;
-    `
+    ORDER BY p.created_at %s, p.id %s
+    LIMIT $2 OFFSET $3;
+    `, pg.Sort, pg.Sort)
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := ps.db.QueryContext(ctx, query, userID)
+	rows, err := ps.db.QueryContext(ctx, query, userID, pg.Limit, pg.Offset)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	feed := []*PostWithMetadata{}
 	for rows.Next() {
 		p := &PostWithMetadata{}
@@ -106,6 +110,10 @@ func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64) ([]*PostWit
 			return nil, err
 		}
 		feed = append(feed, p)
+	}
+	// Check for any iteration errors
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 	return feed, nil
 }
