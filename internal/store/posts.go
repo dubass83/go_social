@@ -4,9 +4,9 @@ package store
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 type Post struct {
@@ -64,7 +64,15 @@ func (ps *PostsStore) Create(ctx context.Context, post *Post) error {
 }
 
 func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64, pg PaginatedFeedQuery) ([]*PostWithMetadata, error) {
-	query := fmt.Sprintf(`
+	var tagsCondition string
+
+	if len(pg.Tags) == 0 {
+		tagsCondition = "($5 = $5 OR TRUE)"
+	} else {
+		tagsCondition = "(p.tags @> $5)"
+	}
+
+	query := `
 	SELECT
       p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags,
       u.username,
@@ -72,21 +80,26 @@ func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64, pg Paginate
     FROM posts p
     LEFT JOIN users u ON u.id = p.user_id
     LEFT JOIN comments c ON p.id = c.post_id
-    WHERE p.user_id = $1
-    OR p.user_id IN (
-      SELECT follower_id
-      FROM followers
-      WHERE user_id = $1
-      )
+    WHERE
+      (p.user_id = $1 OR p.user_id IN (
+           SELECT follower_id
+           FROM followers
+           WHERE user_id = $1
+      ))
+      AND (p.title ILIKE '%' || $4 || '%' OR p.content ILIKE '%' || $4 || '%')
+      AND ` + tagsCondition + `
     GROUP BY p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags, u.username
-    ORDER BY p.created_at %s, p.id %s
+    ORDER BY p.created_at ` + pg.Sort + `, p.id ` + pg.Sort + `
     LIMIT $2 OFFSET $3;
-    `, pg.Sort, pg.Sort)
+    `
+
+	log.Debug().Msgf("userID: %d, limit: %d, offset: %d, tags: %+v, search: '%s'",
+		userID, pg.Limit, pg.Offset, pg.Tags, pg.Search)
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := ps.db.QueryContext(ctx, query, userID, pg.Limit, pg.Offset)
+	rows, err := ps.db.QueryContext(ctx, query, userID, pg.Limit, pg.Offset, pg.Search, pq.Array(pg.Tags))
 	if err != nil {
 		return nil, err
 	}
