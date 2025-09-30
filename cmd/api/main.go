@@ -9,9 +9,27 @@ import (
 
 const version = "0.1.0"
 
+//	@title			GO Social Study App
+//	@description	This is a sample server Go Social server.
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@BasePath					/v1
+//
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+
 func main() {
 	conf := config{
-		addr: env.GetString("API_ADDR", ":8080"),
+		addr:   env.GetString("API_ADDR", ":8080"),
+		apiURL: env.GetString("EXTERNAL_URL", "http://localhost:8080"),
 		db: dbConf{
 			addr:         env.GetString("DB_ADDR", "postgres://postgres:password@localhost:5432/social?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),

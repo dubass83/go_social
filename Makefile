@@ -97,3 +97,6 @@ seed:
 	@echo "Seeding database..."
 	@go run cmd/db/seed/main.go
 	@echo "Database seeded!"
+
+gen-docs:
+	@swag init -g ./api/main.go -d cmd,internal && swag fmt
