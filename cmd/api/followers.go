@@ -10,7 +10,7 @@ type FollowerIDPayload struct {
 //
 //	@Summary		Follow a user
 //	@Description	follow user by ID
-//	@Tags			USER
+//	@Tags			USERS
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	int	true	"Posts ID"
@@ -40,7 +40,7 @@ func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Req
 //
 //	@Summary		Unfollow a user
 //	@Description	unfollow user by ID
-//	@Tags			USER
+//	@Tags			USERS
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	int	true	"Posts ID"
