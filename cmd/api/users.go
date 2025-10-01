@@ -19,6 +19,19 @@ type UserPayload struct {
 	Password string `json:"password" validate:"required,min=8,max=100"`
 }
 
+// GetUserByIDHandler godoc
+//
+//	@Summary		Get a user
+//	@Description	get user by ID
+//	@Tags			USERS
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	store.User
+//	@Failure		400	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users/{id} [get]
 func (app *application) GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 
@@ -28,6 +41,18 @@ func (app *application) GetUserByIDHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
+// CreateUserHandler godoc
+//
+//	@Summary		Create a new user
+//	@Description	create a new user with username, email and password
+//	@Tags			USERS
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		UserPayload	true	"User payload"
+//	@Success		201		{object}	store.User
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/users [post]
 func (app *application) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var payload UserPayload
 	err := readJSON(w, r, &payload)

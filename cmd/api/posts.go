@@ -25,6 +25,18 @@ type UpdatePostPayload struct {
 	Tags    []string `json:"tags" validate:"omitempty"`
 }
 
+// CreatePostHandler godoc
+//
+//	@Summary		Create a new post
+//	@Description	create a new post with title, content and tags
+//	@Tags			POSTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			post	body		PostPayload	true	"Post payload"
+//	@Success		201		{object}	store.Post
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/posts [post]
 func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload PostPayload
 	err := readJSON(w, r, &payload)
@@ -87,6 +99,18 @@ func (app *application) GetPostByIDHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// DeletePostHandler godoc
+//
+//	@Summary		Delete a post
+//	@Description	delete post by ID
+//	@Tags			POSTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Post ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/posts/{id} [delete]
 func (app *application) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "postID")
 	ctx := r.Context()
@@ -108,6 +132,20 @@ func (app *application) DeletePostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// UpdatePostHandler godoc
+//
+//	@Summary		Update a post
+//	@Description	update post by ID with optional title, content and tags
+//	@Tags			POSTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int					true	"Post ID"
+//	@Param			post	body		UpdatePostPayload	true	"Update post payload"
+//	@Success		200		{object}	store.Post
+//	@Failure		400		{object}	map[string]string
+//	@Failure		404		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/posts/{id} [patch]
 func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()

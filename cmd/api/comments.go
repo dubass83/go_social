@@ -11,6 +11,20 @@ type commentPayLoad struct {
 	Content string `json:"content" validate:"required"`
 }
 
+// CreateCommentToPostByIDHandler godoc
+//
+//	@Summary		Create a comment on a post
+//	@Description	create a new comment on a post by post ID
+//	@Tags			COMMENTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int				true	"Post ID"
+//	@Param			comment	body		commentPayLoad	true	"Comment payload"
+//	@Success		201		{object}	store.Comment
+//	@Failure		400		{object}	map[string]string
+//	@Failure		404		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/posts/{id}/comments [post]
 func (app *application) CreateCommentToPostByIDHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	post := getPostFromCtx(r)
