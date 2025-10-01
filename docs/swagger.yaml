@@ -125,6 +125,68 @@ paths:
       summary: Show a post with comments
       tags:
       - POSTS
+  /users/{id}/follow:
+    put:
+      consumes:
+      - application/json
+      description: follow user by ID
+      parameters:
+      - description: Posts ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Follow a user
+      tags:
+      - USER
+  /users/{id}/unfollow:
+    put:
+      consumes:
+      - application/json
+      description: unfollow user by ID
+      parameters:
+      - description: Posts ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Unfollow a user
+      tags:
+      - USER
 securityDefinitions:
   ApiKeyAuth:
     in: header

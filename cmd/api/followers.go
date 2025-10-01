@@ -6,6 +6,18 @@ type FollowerIDPayload struct {
 	ID int64 `json:"id"`
 }
 
+// FollowUserByIDHandler godoc
+//
+//	@Summary		Follow a user
+//	@Description	follow user by ID
+//	@Tags			USER
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"Posts ID"
+//	@Success		202
+//	@Failure		400	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users/{id}/follow [put]
 func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	fl := FollowerIDPayload{}
 	if err := readJSON(w, r, &fl); err != nil {
@@ -24,6 +36,18 @@ func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// UnfollowUserByIDHandler godoc
+//
+//	@Summary		Unfollow a user
+//	@Description	unfollow user by ID
+//	@Tags			USER
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	int	true	"Posts ID"
+//	@Success		202
+//	@Failure		400	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/users/{id}/unfollow [put]
 func (app *application) UnfollowUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	fl := FollowerIDPayload{}
 	if err := readJSON(w, r, &fl); err != nil {
