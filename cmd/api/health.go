@@ -12,8 +12,8 @@ import (
 //	@Description	get health status
 //	@Tags			OPS
 //	@Produce		json
-//	@Success		200	{map}	map[string]string
-//	@Failure		500	{map}	map[string]string
+//	@Success		200	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
 //	@Router			/health [get]
 func (app *application) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{

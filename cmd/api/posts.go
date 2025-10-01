@@ -55,6 +55,19 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// GetPostByIDHandler godoc
+//
+//	@Summary		Show a post with comments
+//	@Description	get post by ID
+//	@Tags			POSTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Posts ID"
+//	@Success		200	{object}	store.Post
+//	@Failure		400	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/posts/{id} [get]
 func (app *application) GetPostByIDHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
