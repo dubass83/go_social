@@ -48,7 +48,7 @@ func (app *application) mount() http.Handler {
 	})
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.HealthCheckHandler)
-		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.apiURL)
+		docsURL := fmt.Sprintf("http://%s/v1/swagger/doc.json", app.config.apiURL)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {

@@ -6,6 +6,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// HealthCheckHandler godoc
+//
+//	@Summary		Health Check
+//	@Description	get health status
+//	@Tags			OPS
+//	@Produce		json
+//	@Success		200	{map}	map[string]string
+//	@Failure		500	{map}	map[string]string
+//	@Router			/health [get]
 func (app *application) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"status":  "ok",

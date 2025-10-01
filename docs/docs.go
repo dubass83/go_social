@@ -23,7 +23,34 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "get health status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OPS"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "map"
+                        }
+                    }
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "ApiKeyAuth": {
             "type": "apiKey",

@@ -10,7 +10,24 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
   title: GO Social Study App
-paths: {}
+paths:
+  /health:
+    get:
+      description: get health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: map
+        "500":
+          description: Internal Server Error
+          schema:
+            type: map
+      summary: Health Check
+      tags:
+      - OPS
 securityDefinitions:
   ApiKeyAuth:
     in: header
