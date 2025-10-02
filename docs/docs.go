@@ -552,7 +552,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "USER"
+                    "USERS"
                 ],
                 "summary": "Follow a user",
                 "parameters": [
@@ -599,7 +599,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "USER"
+                    "USERS"
                 ],
                 "summary": "Unfollow a user",
                 "parameters": [

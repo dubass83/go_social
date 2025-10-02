@@ -445,7 +445,7 @@ paths:
             type: object
       summary: Follow a user
       tags:
-      - USER
+      - USERS
   /users/{id}/unfollow:
     put:
       consumes:
@@ -476,7 +476,7 @@ paths:
             type: object
       summary: Unfollow a user
       tags:
-      - USER
+      - USERS
   /users/feed:
     get:
       consumes:
