@@ -1,9 +1,12 @@
 package main
 
 import (
+	"os"
+
 	"github.com/dubass83/go_social/internal/db"
 	"github.com/dubass83/go_social/internal/env"
 	"github.com/dubass83/go_social/internal/store"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -30,12 +33,19 @@ func main() {
 	conf := config{
 		addr:   env.GetString("API_ADDR", ":8080"),
 		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
+		env:    env.GetString("ENVIRONMENT", "dev"),
 		db: dbConf{
 			addr:         env.GetString("DB_ADDR", "postgres://postgres:password@localhost:5432/social?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "10m"),
 		},
+	}
+
+	// Logger
+	if conf.env == "dev" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		// log.Debug().Msgf("config values: %+v", conf)
 	}
 
 	db, err := db.New(
