@@ -13,12 +13,6 @@ type UserKey string
 
 const UserCtxKey UserKey = "user"
 
-type UserPayload struct {
-	Username string `json:"username" validate:"required,min=2,max=100"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8,max=100"`
-}
-
 // GetUserByIDHandler godoc
 //
 //	@Summary		Get a user
@@ -39,46 +33,6 @@ func (app *application) GetUserByIDHandler(w http.ResponseWriter, r *http.Reques
 		internalServerError(w, r, err)
 	}
 
-}
-
-// CreateUserHandler godoc
-//
-//	@Summary		Create a new user
-//	@Description	create a new user with username, email and password
-//	@Tags			USERS
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body		UserPayload	true	"User payload"
-//	@Success		201		{object}	store.User
-//	@Failure		400		{object}	map[string]string
-//	@Failure		500		{object}	map[string]string
-//	@Router			/users [post]
-func (app *application) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var payload UserPayload
-	err := readJSON(w, r, &payload)
-	if err != nil {
-		badRequestResponse(w, r, err)
-		return
-	}
-	if err = validate.Struct(payload); err != nil {
-		badRequestResponse(w, r, err)
-		return
-	}
-	user := &store.User{
-		Username: payload.Username,
-		Email:    payload.Email,
-		Password: payload.Password,
-	}
-
-	if err := app.store.User.Create(r.Context(), user); err != nil {
-		internalServerError(w, r, err)
-		return
-	}
-
-	if err := app.jsonResponse(w, http.StatusCreated, user); err != nil {
-		internalServerError(w, r, err)
-		return
-	}
 }
 
 func (app *application) userContextMiddelware(next http.Handler) http.Handler {

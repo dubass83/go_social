@@ -8,6 +8,7 @@ import (
 
 	lorem "github.com/derektata/lorem/ipsum"
 	"github.com/dubass83/go_social/internal/store"
+	"github.com/dubass83/go_social/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -85,10 +86,15 @@ func generateUsers(num int) []*store.User {
 	runes := generateRuneList()
 	for i := range num {
 		usr := randonUserName(runes, 8)
+		hashedPassword, err := util.HashPassword(fmt.Sprintf("some_pass_%d", i))
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to hash password for string: %s", fmt.Sprintf("some_pass_%d", i))
+			continue
+		}
 		users[i] = &store.User{
 			Username: usr + fmt.Sprintf("%d", i),
 			Email:    usr + fmt.Sprintf("%d@example.me", i),
-			Password: fmt.Sprintf("some_pass_%d", i),
+			Password: hashedPassword,
 		}
 	}
 	return users
