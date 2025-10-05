@@ -88,7 +88,7 @@ func generateUsers(num int) []*store.User {
 		usr := randonUserName(runes, 8)
 		hashedPassword, err := util.HashPassword(fmt.Sprintf("some_pass_%d", i))
 		if err != nil {
-			log.Error().Err(err).Msgf("Failed to hash password for string: %s", fmt.Sprintf("some_pass_%d", i))
+			log.Error().Err(err)
 			continue
 		}
 		users[i] = &store.User{
