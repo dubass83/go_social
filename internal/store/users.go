@@ -3,6 +3,9 @@ package store
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"github.com/dubass83/go_social/internal/util"
 )
 
 type User struct {
@@ -81,4 +84,34 @@ func (us *UsersStore) GetByID(ctx context.Context, id int64) (*User, error) {
 		}
 	}
 	return user, nil
+}
+
+func (us *UsersStore) CreateAndInvite(ctx context.Context, user *User) error {
+	if err := us.Create(ctx, user); err != nil {
+		return err
+	}
+
+	query := `
+	INSERT INTO invitations (user_id, token, expiry)
+	VALUES ($1, $2, $3)
+	RETURNING id
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	err := us.db.QueryRowContext(
+		ctx,
+		query,
+		user.ID,
+		util.GenerateToken(user.ID),
+		time.Now().Add(30*time.Minute),
+	).Scan(
+		&user.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

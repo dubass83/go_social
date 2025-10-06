@@ -4,6 +4,7 @@ package util
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,4 +20,8 @@ func HashPassword(password string) (string, error) {
 // CheckPassword check if provided password correct or not.
 func CheckPassword(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+}
+
+func GenerateToken(userID int64) string {
+	return fmt.Sprintf("%d-%s", userID, uuid.New().String())
 }

@@ -15,7 +15,7 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		registerUserPayload	true	"User credentials"
-//	@Success		201		{object}	store.User "user registered"
+//	@Success		201		{object}	store.User			"user registered"
 //	@Failure		400		{object}	error
 //	@Failure		500		{object}	error
 //	@Router			/authentication/user [post]
