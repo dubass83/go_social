@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dubass83/go_social/internal/util"
+	"github.com/rs/zerolog/log"
 )
 
 type User struct {
@@ -99,19 +100,42 @@ func (us *UsersStore) CreateAndInvite(ctx context.Context, user *User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
+	token := util.GenerateToken(user.ID)
+	expiry := time.Now().Add(30 * time.Minute)
+
+	invite := &Invitation{
+		UserID: user.ID,
+		Token:  token,
+		Expiry: expiry,
+	}
 	err := us.db.QueryRowContext(
 		ctx,
 		query,
 		user.ID,
-		util.GenerateToken(user.ID),
-		time.Now().Add(30*time.Minute),
+		token,
+		expiry,
 	).Scan(
-		&user.ID,
+		&invite.ID,
 	)
 
 	if err != nil {
 		return err
 	}
 
+	log.Debug().Msgf("user: %v", user)
+	log.Debug().Msgf("invite: %v", invite)
+
 	return nil
+}
+
+func (us *UsersStore) CreateAndInviteTx(ctx context.Context, user *User) error {
+	return withTx(us.db, ctx, func(tx *sql.Tx) error {
+		if err := createUserTx(ctx, tx, user); err != nil {
+			return err
+		}
+		if err := createInvitationTx(ctx, tx, user); err != nil {
+			return err
+		}
+		return nil
+	})
 }

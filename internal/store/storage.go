@@ -23,6 +23,7 @@ type Storage struct {
 	User interface {
 		Create(context.Context, *User) error
 		CreateAndInvite(context.Context, *User) error
+		CreateAndInviteTx(context.Context, *User) error
 		GetByID(context.Context, int64) (*User, error)
 	}
 	Comment interface {
