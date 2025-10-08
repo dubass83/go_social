@@ -43,7 +43,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Password: hashedPassword,
 	}
 
-	if err := app.store.User.Create(r.Context(), user); err != nil {
+	if err := app.store.User.CreateAndInviteTx(r.Context(), user); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
