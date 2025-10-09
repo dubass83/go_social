@@ -35,6 +35,40 @@ func (app *application) GetUserByIDHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
+// activateUserHandler godoc
+//
+//	@Summary		Activate a user
+//	@Description	activate user by invitation token
+//	@Tags			USERS
+//	@Accept			json
+//	@Produce		json
+//	@Param			token	path		string	true	"Invitation Token"
+//	@Success		202		{string}	string	"User activated successfully"
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Security		ApiKeyAuth
+//	@Router			/users/activate/{token} [put]
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+
+	err := app.store.User.Activate(r.Context(), token)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			badRequestResponse(w, r, err)
+		default:
+			internalServerError(w, r, err)
+		}
+		return
+	}
+
+	err = app.jsonResponse(w, http.StatusAccepted, "User activated successfully")
+	if err != nil {
+		internalServerError(w, r, err)
+	}
+}
+
 func (app *application) userContextMiddelware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)

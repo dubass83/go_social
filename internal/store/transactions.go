@@ -2,10 +2,13 @@ package store
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/dubass83/go_social/internal/util"
+	"github.com/rs/zerolog/log"
 )
 
 func withTx(db *sql.DB, ctx context.Context, fn func(tx *sql.Tx) error) error {
@@ -58,10 +61,15 @@ func createInvitationTx(ctx context.Context, tx *sql.Tx, user *User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	token := util.GenerateToken(user.ID)
+	plainToken := util.GenerateToken(user.ID)
+	hash := sha256.Sum256([]byte(plainToken))
+	token := fmt.Sprintf("%x", hash)
+
 	expiry := time.Now().Add(30 * time.Minute)
 
 	_, err := tx.ExecContext(ctx, query, user.ID, token, expiry)
+
+	log.Debug().Msgf("Invitation token: %s  for userID: %d", plainToken, user.ID)
 
 	if err != nil {
 		return err

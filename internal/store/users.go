@@ -2,7 +2,9 @@ package store
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/dubass83/go_social/internal/util"
@@ -15,6 +17,7 @@ type User struct {
 	Email     string `json:"email"`
 	Password  string `json:"-"`
 	CreatedAt string `json:"created_at"`
+	Active    bool   `json:"active"`
 }
 
 type UsersStore struct {
@@ -100,7 +103,10 @@ func (us *UsersStore) CreateAndInvite(ctx context.Context, user *User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	token := util.GenerateToken(user.ID)
+	plainToken := util.GenerateToken(user.ID)
+	hash := sha256.Sum256([]byte(plainToken))
+	token := fmt.Sprintf("%x", hash)
+
 	expiry := time.Now().Add(30 * time.Minute)
 
 	invite := &Invitation{
@@ -138,4 +144,45 @@ func (us *UsersStore) CreateAndInviteTx(ctx context.Context, user *User) error {
 		}
 		return nil
 	})
+}
+
+func (us *UsersStore) Activate(ctx context.Context, plainToken string) error {
+	query := `
+	UPDATE users
+	SET active = TRUE
+	WHERE id = (
+		SELECT user_id
+		FROM invitations
+		WHERE token = $1
+		AND expiry > NOW()
+	)
+	RETURNING id
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	hash := sha256.Sum256([]byte(plainToken))
+	token := fmt.Sprintf("%x", hash)
+
+	var userID int64
+	err := us.db.QueryRowContext(
+		ctx,
+		query,
+		token,
+	).Scan(
+		&userID,
+	)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return ErrNotFound
+		default:
+			return err
+		}
+	}
+
+	log.Debug().Msgf("user: %v", userID)
+
+	return nil
 }
