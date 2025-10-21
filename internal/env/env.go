@@ -1,3 +1,7 @@
+/*
+Package env provides utility functions for retrieving environment variables
+with support for default fallback values and type conversion.
+*/
 package env
 
 import (

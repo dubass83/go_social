@@ -5,6 +5,7 @@ import (
 
 	"github.com/dubass83/go_social/internal/db"
 	"github.com/dubass83/go_social/internal/env"
+	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -39,6 +40,14 @@ func main() {
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "10m"),
+		},
+		mail: mailer.MailConf{
+			EmailService:   env.GetString("MAIL_SERVICE", "mailtrap"),
+			SenderName:     env.GetString("MAIL_SENDER_NAME", "GO Social"),
+			SenderEmail:    env.GetString("MAIL_SENDER_EMAIL", "noreply@go-social.com"),
+			EmailLogin:     env.GetString("MAIL_LOGIN", "user@example.com"),
+			EmailPassword:  env.GetString("MAIL_PASSWORD", "password"),
+			PathToTemplate: env.GetString("MAIL_TEMPLATE_PATH", "./internal/mailer/templates"),
 		},
 	}
 

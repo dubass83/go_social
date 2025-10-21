@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dubass83/go_social/docs"
+	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -23,6 +24,7 @@ type config struct {
 	apiURL string
 	env    string
 	db     dbConf
+	mail   mailer.MailConf
 }
 
 type dbConf struct {
