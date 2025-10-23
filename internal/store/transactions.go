@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dubass83/go_social/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -61,7 +60,7 @@ func createInvitationTx(ctx context.Context, tx *sql.Tx, user *User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	plainToken := util.GenerateToken(user.ID)
+	plainToken := user.ActivationToken
 	hash := sha256.Sum256([]byte(plainToken))
 	token := fmt.Sprintf("%x", hash)
 

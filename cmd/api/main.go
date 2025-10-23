@@ -57,6 +57,12 @@ func main() {
 		// log.Debug().Msgf("config values: %+v", conf)
 	}
 
+	// Mailer
+	mailer, err := mailer.NewMailSender(conf.mail)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create mailer")
+	}
+
 	db, err := db.New(
 		conf.db.addr,
 		conf.db.maxOpenConns,
@@ -76,6 +82,7 @@ func main() {
 	app := &application{
 		config: conf,
 		store:  store,
+		mailer: mailer,
 	}
 
 	if err := app.run(app.mount()); err != nil {

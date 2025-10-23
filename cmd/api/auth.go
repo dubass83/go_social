@@ -1,10 +1,13 @@
 package main
 
 import (
+	"math/rand/v2"
 	"net/http"
 
+	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/dubass83/go_social/internal/util"
+	"github.com/rs/zerolog/log"
 )
 
 // registerUserHandler godoc
@@ -38,14 +41,25 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	user := &store.User{
-		Username: payload.Username,
-		Email:    payload.Email,
-		Password: hashedPassword,
+		Username:        payload.Username,
+		Email:           payload.Email,
+		Password:        hashedPassword,
+		ActivationToken: util.GenerateToken(rand.Int64N(100)),
 	}
 
 	if err := app.store.User.CreateAndInviteTx(r.Context(), user); err != nil {
 		internalServerError(w, r, err)
 		return
+	}
+
+	// send email
+	if err := app.mailer.Send(mailer.Message{
+		To:       []string{user.Email},
+		Subject:  "Welcome to Go Social!",
+		Data:     user.ActivationToken,
+		Template: "confirmation-email",
+	}); err != nil {
+		log.Error().Err(err).Msg("failed to send email")
 	}
 
 	if err := app.jsonResponse(w, http.StatusCreated, user); err != nil {

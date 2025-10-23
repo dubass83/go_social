@@ -22,6 +22,6 @@ func CheckPassword(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-func GenerateToken(userID int64) string {
-	return fmt.Sprintf("%d-%s", userID, uuid.New().String())
+func GenerateToken(ID int64) string {
+	return fmt.Sprintf("%d-%s", ID, uuid.New().String())
 }

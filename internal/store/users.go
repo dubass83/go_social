@@ -12,12 +12,13 @@ import (
 )
 
 type User struct {
-	ID        int64  `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"-"`
-	CreatedAt string `json:"created_at"`
-	Active    bool   `json:"active"`
+	ID              int64  `json:"id"`
+	Username        string `json:"username"`
+	Email           string `json:"email"`
+	Password        string `json:"-"`
+	CreatedAt       string `json:"created_at"`
+	Active          bool   `json:"active"`
+	ActivationToken string `json:"activation_token"`
 }
 
 type UsersStore struct {

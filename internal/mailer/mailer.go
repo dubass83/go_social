@@ -7,6 +7,10 @@ import (
 	"github.com/wneessen/go-mail"
 )
 
+const (
+	maxRetries = 3
+)
+
 type Mail struct {
 	Sender EmailSender
 }

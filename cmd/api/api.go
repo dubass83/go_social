@@ -17,6 +17,7 @@ import (
 type application struct {
 	config config
 	store  *store.Storage
+	mailer mailer.EmailSender
 }
 
 type config struct {

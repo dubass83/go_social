@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"text/template"
+	"time"
 
 	"github.com/vanng822/go-premailer/premailer"
 	"github.com/wneessen/go-mail"
@@ -90,11 +91,14 @@ func (sender *MailTrapSender) Send(email Message) error {
 		return fmt.Errorf("failed to create mail client: %s", err)
 	}
 
-	if err = c.DialAndSend(m); err != nil {
-		return err
+	for i := range maxRetries {
+		if err = c.DialAndSend(m); err != nil {
+			time.Sleep(5 * time.Second * time.Duration(i))
+			continue
+		}
+		return nil
 	}
-
-	return nil
+	return fmt.Errorf("failed to send email after %d retries", maxRetries)
 }
 
 func buildHTMLMessage(templ string, message map[string]any) (string, error) {
