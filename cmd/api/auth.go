@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"net/http"
 
@@ -52,11 +53,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	activationURL := fmt.Sprintf("%s/v1/users/activate?token=%s", app.config.frontendURL, user.ActivationToken)
+
 	// send email
 	if err := app.mailer.Send(mailer.Message{
 		To:       []string{user.Email},
 		Subject:  "Welcome to Go Social!",
-		Data:     user.ActivationToken,
+		Data:     activationURL,
 		Template: "confirmation-email",
 	}); err != nil {
 		log.Error().Err(err).Msg("failed to send email")

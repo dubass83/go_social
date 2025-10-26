@@ -21,11 +21,12 @@ type application struct {
 }
 
 type config struct {
-	addr   string
-	apiURL string
-	env    string
-	db     dbConf
-	mail   mailer.MailConf
+	addr        string
+	apiURL      string
+	frontendURL string
+	env         string
+	db          dbConf
+	mail        mailer.MailConf
 }
 
 type dbConf struct {
