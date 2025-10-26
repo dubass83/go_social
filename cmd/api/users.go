@@ -48,7 +48,7 @@ func (app *application) GetUserByIDHandler(w http.ResponseWriter, r *http.Reques
 //	@Failure		404		{object}	error
 //	@Failure		500		{object}	error
 //	@Security		ApiKeyAuth
-//	@Router			/users/activate/{token} [put]
+//	@Router			/users/activate/{token} [put,get]
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	token := chi.URLParam(r, "token")
 
