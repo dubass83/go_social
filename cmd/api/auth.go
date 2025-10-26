@@ -63,6 +63,16 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Template: "confirmation-email",
 	}); err != nil {
 		log.Error().Err(err).Msg("failed to send email")
+		log.Debug().Msgf("clean activation token and remove inactive user: %s from database", user.Email)
+		err := app.store.User.DeleteByID(r.Context(), user.ID)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to delete user")
+		}
+		err = app.store.Invitation.CleanByID(r.Context(), user.ID)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to clean invitation")
+		}
+		return
 	}
 
 	if err := app.jsonResponse(w, http.StatusCreated, user); err != nil {

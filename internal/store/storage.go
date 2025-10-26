@@ -25,6 +25,7 @@ type Storage struct {
 		CreateAndInvite(context.Context, *User) error
 		CreateAndInviteTx(context.Context, *User) error
 		GetByID(context.Context, int64) (*User, error)
+		DeleteByID(context.Context, int64) error
 		Activate(context.Context, string) error
 	}
 	Comment interface {
@@ -35,13 +36,17 @@ type Storage struct {
 		CreateFollower(context.Context, int64, int64) error
 		DeleteFollower(context.Context, int64, int64) error
 	}
+	Invitation interface {
+		CleanByID(context.Context, int64) error
+	}
 }
 
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
-		Post:     NewPostsStore(db),
-		User:     NewUsersStore(db),
-		Comment:  NewCommentsStore(db),
-		Follower: NewFollowersStore(db),
+		Post:       NewPostsStore(db),
+		User:       NewUsersStore(db),
+		Comment:    NewCommentsStore(db),
+		Follower:   NewFollowersStore(db),
+		Invitation: NewInvitationStore(db),
 	}
 }

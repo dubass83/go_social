@@ -187,3 +187,18 @@ func (us *UsersStore) Activate(ctx context.Context, plainToken string) error {
 
 	return nil
 }
+
+func (us *UsersStore) DeleteByID(ctx context.Context, userID int64) error {
+	query := `
+	DELETE FROM users
+	WHERE id = $1 and active = FALSE
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := us.db.ExecContext(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
