@@ -1,8 +1,9 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "./config";
 
 export const ConfirmationPage = () => {
   const { token } = useParams<{ token: string }>();
+  const redirect = useNavigate();
   const handleConfirm = async () => {
     const response = await fetch(`${API_URL}/users/activate/${token}`, {
       method: "PUT",
@@ -10,6 +11,7 @@ export const ConfirmationPage = () => {
 
     if (response.ok) {
       // Handle successful activation
+      redirect("/");
     } else {
       // Handle error
       alert("An error occurred while confirming your account.");

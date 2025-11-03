@@ -34,7 +34,7 @@ func main() {
 	conf := config{
 		addr:        env.GetString("API_ADDR", ":8080"),
 		apiURL:      env.GetString("EXTERNAL_URL", "localhost:8080"),
-		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:8080"),
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:5173"),
 		env:         env.GetString("ENVIRONMENT", "dev"),
 		db: dbConf{
 			addr:         env.GetString("DB_ADDR", "postgres://postgres:password@localhost:5432/social?sslmode=disable"),
