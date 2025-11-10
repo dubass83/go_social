@@ -50,6 +50,12 @@ func main() {
 			EmailPassword:  env.GetString("MAIL_PASSWORD", "password"),
 			PathToTemplate: env.GetString("MAIL_TEMPLATE_PATH", "./internal/mailer/templates"),
 		},
+		auth: authConf{
+			basic: basicAuthConf{
+				env.GetString("BASIC_AUTH_USERNAME", "admin"),
+				env.GetString("BASIC_AUTH_PASSWORD", "password"),
+			},
+		},
 	}
 
 	// Logger

@@ -28,6 +28,7 @@ type config struct {
 	env         string
 	db          dbConf
 	mail        mailer.MailConf
+	auth        authConf
 }
 
 type dbConf struct {
@@ -35,6 +36,15 @@ type dbConf struct {
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string
+}
+
+type authConf struct {
+	basic basicAuthConf
+}
+
+type basicAuthConf struct {
+	user string
+	pass string
 }
 
 type registerUserPayload struct {
@@ -69,7 +79,7 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("welcome"))
 	})
 	r.Route("/v1", func(r chi.Router) {
-		r.Get("/health", app.HealthCheckHandler)
+		r.With(app.BasicAuthMiddleware).Get("/health", app.HealthCheckHandler)
 		docsURL := fmt.Sprintf("http://%s/v1/swagger/doc.json", app.config.apiURL)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
