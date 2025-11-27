@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dubass83/go_social/docs"
+	"github.com/dubass83/go_social/internal/auth"
 	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
@@ -16,9 +17,10 @@ import (
 )
 
 type application struct {
-	config config
-	store  *store.Storage
-	mailer mailer.EmailSender
+	config        config
+	store         *store.Storage
+	mailer        mailer.EmailSender
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -40,6 +42,7 @@ type dbConf struct {
 
 type authConf struct {
 	basic basicAuthConf
+	jwt   jwtAuthConf
 }
 
 type basicAuthConf struct {
@@ -47,8 +50,18 @@ type basicAuthConf struct {
 	pass string
 }
 
+type jwtAuthConf struct {
+	secret string
+	expiry time.Duration
+}
+
 type registerUserPayload struct {
 	Username string `json:"username" validate:"required,min=2,max=100"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8,max=100"`
+}
+
+type createTokenPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8,max=100"`
 }
@@ -117,6 +130,7 @@ func (app *application) mount() http.Handler {
 		// Public routes
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/user", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 	})
 

@@ -25,6 +25,7 @@ type Storage struct {
 		CreateAndInvite(context.Context, *User) error
 		CreateAndInviteTx(context.Context, *User) error
 		GetByID(context.Context, int64) (*User, error)
+		GetByEmail(context.Context, string) (*User, error)
 		DeleteByID(context.Context, int64) error
 		Activate(context.Context, string) error
 	}

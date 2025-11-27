@@ -2,7 +2,9 @@ package main
 
 import (
 	"os"
+	"time"
 
+	"github.com/dubass83/go_social/internal/auth"
 	"github.com/dubass83/go_social/internal/db"
 	"github.com/dubass83/go_social/internal/env"
 	"github.com/dubass83/go_social/internal/mailer"
@@ -11,7 +13,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const version = "0.1.0"
+const (
+	version   = "0.1.0"
+	tokenHost = "goSocial"
+)
 
 //	@title			GO Social Study App
 //	@description	This is a sample server Go Social server.
@@ -55,6 +60,10 @@ func main() {
 				env.GetString("BASIC_AUTH_USERNAME", "admin"),
 				env.GetString("BASIC_AUTH_PASSWORD", "password"),
 			},
+			jwt: jwtAuthConf{
+				secret: env.GetString("JWT_SECRET", "veryStrongSecret"),
+				expiry: time.Duration(env.GetInt("JWT_EXPIRY", 3600)) * time.Second,
+			},
 		},
 	}
 
@@ -86,10 +95,13 @@ func main() {
 
 	store := store.NewStorage(db)
 
+	jwt := auth.NewJWTAuthenticator(conf.auth.jwt.secret, tokenHost, tokenHost)
+
 	app := &application{
-		config: conf,
-		store:  store,
-		mailer: mailer,
+		config:        conf,
+		store:         store,
+		mailer:        mailer,
+		authenticator: jwt,
 	}
 
 	if err := app.run(app.mount()); err != nil {

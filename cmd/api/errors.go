@@ -20,3 +20,8 @@ func notFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
 	log.Error().Err(err).Msgf("not found error: %s path: %s", r.Method, r.RequestURI)
 	writeJSONError(w, http.StatusNotFound, "not found")
 }
+
+func unAuthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
+	log.Error().Err(err).Msgf("unauthorized error: %s path: %s", r.Method, r.RequestURI)
+	writeJSONError(w, http.StatusUnauthorized, "unauthorized")
+}
