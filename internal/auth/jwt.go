@@ -34,5 +34,12 @@ func (jwta *JWTAuthenticator) ValidateToken(token string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(jwta.secret), nil
-	})
+	},
+		jwt.WithExpirationRequired(),
+		jwt.WithAudience(jwta.aud),
+		jwt.WithIssuer(jwta.iss),
+		jwt.WithValidMethods([]string{
+			jwt.SigningMethodHS256.Alg(),
+		}),
+	)
 }

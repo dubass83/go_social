@@ -1,6 +1,11 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
+)
 
 type FollowerIDPayload struct {
 	ID int64 `json:"id"`
@@ -13,22 +18,22 @@ type FollowerIDPayload struct {
 //	@Tags			USERS
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path	int	true	"Posts ID"
+//	@Param			userID	path	int	true	"User ID"
 //	@Success		202
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
-//	@Router			/users/{id}/follow [put]
+//	@Router			/users/{userID}/follow [put]
 func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Request) {
-	fl := FollowerIDPayload{}
-	if err := readJSON(w, r, &fl); err != nil {
-		badRequestResponse(w, r, err)
+	flID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)
+	if err != nil {
+		internalServerError(w, r, err)
 		return
 	}
-
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.CreateFollower(r.Context(), user.ID, fl.ID); err != nil {
+	if err := app.store.Follower.CreateFollower(r.Context(), user.ID, flID); err != nil {
 		internalServerError(w, r, err)
+		return
 	}
 
 	if err := app.jsonResponse(w, http.StatusAccepted, nil); err != nil {
@@ -43,21 +48,21 @@ func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Req
 //	@Tags			USERS
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path	int	true	"Posts ID"
+//	@Param			userID	path	int	true	"User ID"
 //	@Success		202
 //	@Failure		400	{object}	map[string]string
 //	@Failure		500	{object}	map[string]string
-//	@Router			/users/{id}/unfollow [put]
+//	@Router			/users/{userID}/unfollow [put]
 func (app *application) UnfollowUserByIDHandler(w http.ResponseWriter, r *http.Request) {
-	fl := FollowerIDPayload{}
-	if err := readJSON(w, r, &fl); err != nil {
-		badRequestResponse(w, r, err)
+	flID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)
+	if err != nil {
+		internalServerError(w, r, err)
 		return
 	}
 
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.DeleteFollower(r.Context(), user.ID, fl.ID); err != nil {
+	if err := app.store.Follower.DeleteFollower(r.Context(), user.ID, flID); err != nil {
 		internalServerError(w, r, err)
 	}
 

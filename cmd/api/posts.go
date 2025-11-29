@@ -48,12 +48,14 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 		badRequestResponse(w, r, err)
 		return
 	}
+
+	user := getUserFromCtx(r)
+
 	post := &store.Post{
 		Title:   payload.Title,
 		Content: payload.Content,
 		Tags:    payload.Tags,
-		// TODO: add user ID from auth
-		UserID: 1,
+		UserID:  user.ID,
 	}
 
 	if err := app.store.Post.Create(r.Context(), post); err != nil {
@@ -172,12 +174,18 @@ func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request
 		post.Tags = payload.Tags
 	}
 
+	user := getUserFromCtx(r)
+
+	if user.ID != post.UserID {
+		unAuthorizedResponse(w, r, fmt.Errorf("user with ID %d is allowed to update this post", user.ID))
+		return
+	}
+
 	updatedPost := &store.Post{
 		Title:   post.Title,
 		Content: post.Content,
 		Tags:    post.Tags,
-		// TODO: add user ID from auth
-		UserID: 1,
+		UserID:  user.ID,
 	}
 
 	if err := app.store.Post.Update(ctx, post.ID, post.Version, updatedPost); err != nil {

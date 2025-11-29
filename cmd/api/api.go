@@ -97,6 +97,7 @@ func (app *application) mount() http.Handler {
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {
+			r.Use(app.AuthTokenMiddelware)
 			r.Post("/", app.CreatePostHandler)
 			r.Route("/{postID}", func(r chi.Router) {
 				r.Use(app.postContextMiddelware)
@@ -112,7 +113,8 @@ func (app *application) mount() http.Handler {
 			r.Put("/activate/{token}", app.activateUserHandler)
 			r.Get("/activate/{token}", app.activateUserHandler)
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Use(app.userContextMiddelware)
+				r.Use(app.AuthTokenMiddelware)
+				// r.Use(app.userContextMiddelware)
 
 				r.Get("/", app.GetUserByIDHandler)
 				r.Put("/follow", app.FollowUserByIDHandler)
