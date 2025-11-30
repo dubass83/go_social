@@ -40,9 +40,11 @@ func (app *application) GetUserFeedHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	user := getUserFromCtx(r)
+
 	ctx := r.Context()
 
-	feed, err := app.store.Post.GetUserFeed(ctx, int64(97), pgFeedQuery)
+	feed, err := app.store.Post.GetUserFeed(ctx, user.ID, pgFeedQuery)
 
 	if err != nil {
 		internalServerError(w, r, err)
