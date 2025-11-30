@@ -31,7 +31,7 @@ func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Req
 	}
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.CreateFollower(r.Context(), user.ID, flID); err != nil {
+	if err := app.store.Follower.CreateFollower(r.Context(), flID, user.ID); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
@@ -62,7 +62,7 @@ func (app *application) UnfollowUserByIDHandler(w http.ResponseWriter, r *http.R
 
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.DeleteFollower(r.Context(), user.ID, flID); err != nil {
+	if err := app.store.Follower.DeleteFollower(r.Context(), flID, user.ID); err != nil {
 		internalServerError(w, r, err)
 	}
 
