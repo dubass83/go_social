@@ -82,7 +82,7 @@ func (ps *PostsStore) GetUserFeed(ctx context.Context, userID int64, pg Paginate
     LEFT JOIN comments c ON p.id = c.post_id
     WHERE
       (p.user_id = $1 OR p.user_id IN (
-           SELECT follower_id
+           SELECT follow_id
            FROM followers
            WHERE user_id = $1
       ))

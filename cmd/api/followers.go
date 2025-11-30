@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type FollowerIDPayload struct {
+type FollowIDPayload struct {
 	ID int64 `json:"id"`
 }
 
@@ -31,7 +31,7 @@ func (app *application) FollowUserByIDHandler(w http.ResponseWriter, r *http.Req
 	}
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.CreateFollower(r.Context(), flID, user.ID); err != nil {
+	if err := app.store.Follow.CreateFollow(r.Context(), user.ID, flID); err != nil {
 		internalServerError(w, r, err)
 		return
 	}
@@ -62,8 +62,9 @@ func (app *application) UnfollowUserByIDHandler(w http.ResponseWriter, r *http.R
 
 	user := getUserFromCtx(r)
 
-	if err := app.store.Follower.DeleteFollower(r.Context(), flID, user.ID); err != nil {
+	if err := app.store.Follow.DeleteFollow(r.Context(), user.ID, flID); err != nil {
 		internalServerError(w, r, err)
+		return
 	}
 
 	if err := app.jsonResponse(w, http.StatusAccepted, nil); err != nil {

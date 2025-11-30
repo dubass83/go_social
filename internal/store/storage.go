@@ -33,9 +33,9 @@ type Storage struct {
 		Create(context.Context, *Comment) error
 		GetByPostID(context.Context, int64) ([]Comment, error)
 	}
-	Follower interface {
-		CreateFollower(context.Context, int64, int64) error
-		DeleteFollower(context.Context, int64, int64) error
+	Follow interface {
+		CreateFollow(context.Context, int64, int64) error
+		DeleteFollow(context.Context, int64, int64) error
 	}
 	Invitation interface {
 		CleanByID(context.Context, int64) error
@@ -47,7 +47,7 @@ func NewStorage(db *sql.DB) *Storage {
 		Post:       NewPostsStore(db),
 		User:       NewUsersStore(db),
 		Comment:    NewCommentsStore(db),
-		Follower:   NewFollowersStore(db),
+		Follow:     NewFollowsStore(db),
 		Invitation: NewInvitationStore(db),
 	}
 }
