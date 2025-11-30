@@ -79,6 +79,7 @@ func (us *UsersStore) GetByID(ctx context.Context, id int64) (*User, error) {
 		&user.Email,
 		&user.Password,
 		&user.CreatedAt,
+		&user.Active,
 	)
 	if err != nil {
 		switch err {
