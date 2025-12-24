@@ -19,6 +19,7 @@ type User struct {
 	CreatedAt       string `json:"created_at"`
 	Active          bool   `json:"active"`
 	ActivationToken string `json:"activation_token"`
+	RoleID          int    `json:"role_id"`
 }
 
 type UsersStore struct {
@@ -33,8 +34,8 @@ func NewUsersStore(db *sql.DB) *UsersStore {
 
 func (us *UsersStore) Create(ctx context.Context, user *User) error {
 	query := `
-	INSERT INTO users (username, email, password)
-	VALUES ($1, $2, $3)
+	INSERT INTO users (username, email, password, role_id)
+	VALUES ($1, $2, $3, $4)
 	RETURNING id, created_at
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -46,6 +47,7 @@ func (us *UsersStore) Create(ctx context.Context, user *User) error {
 		user.Username,
 		user.Email,
 		user.Password,
+		user.RoleID,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -80,6 +82,7 @@ func (us *UsersStore) GetByID(ctx context.Context, id int64) (*User, error) {
 		&user.Password,
 		&user.CreatedAt,
 		&user.Active,
+		&user.RoleID,
 	)
 	if err != nil {
 		switch err {
@@ -226,6 +229,7 @@ func (us *UsersStore) GetByEmail(ctx context.Context, email string) (*User, erro
 		&user.Password,
 		&user.CreatedAt,
 		&user.Active,
+		&user.RoleID,
 	)
 	if err != nil {
 		switch err {
