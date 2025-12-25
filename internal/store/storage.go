@@ -40,6 +40,10 @@ type Storage struct {
 	Invitation interface {
 		CleanByID(context.Context, int64) error
 	}
+	Role interface {
+		GetByName(context.Context, string) (*Role, error)
+		IsPrecedent(context.Context, int, string) (bool, error)
+	}
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -49,5 +53,6 @@ func NewStorage(db *sql.DB) *Storage {
 		Comment:    NewCommentsStore(db),
 		Follow:     NewFollowsStore(db),
 		Invitation: NewInvitationStore(db),
+		Role:       NewRolesStore(db),
 	}
 }
