@@ -69,3 +69,35 @@ func (app *application) AuthTokenMiddelware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func (app *application) checkPostOwnership(requiredRole string, next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := getUserFromCtx(r)
+		post := getPostFromCtx(r)
+
+		// if it is the user post
+		if user.ID == post.UserID {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// role precedence check
+		allowed, err := app.store.Role.IsPrecedent(r.Context(), user.RoleID, requiredRole)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to check role precedence")
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
+		}
+		if !allowed {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// func (app *application) checkRolePrecedence(ctx context.Context, user *store.User, roleName string) (bool, error) {
+//      allowed, err := app.store.Role.IsPrecedent(ctx, user.RoleID, roleName)
+//      return allowed, err
+// }

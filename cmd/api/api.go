@@ -103,8 +103,8 @@ func (app *application) mount() http.Handler {
 				r.Use(app.postContextMiddelware)
 
 				r.Get("/", app.GetPostByIDHandler)
-				r.Delete("/", app.DeletePostHandler)
-				r.Patch("/", app.UpdatePostHandler)
+				r.Delete("/", app.checkPostOwnership("admin", app.DeletePostHandler))
+				r.Patch("/", app.checkPostOwnership("moderator", app.UpdatePostHandler))
 				r.Post("/comments", app.CreateCommentToPostByIDHandler)
 			})
 		})

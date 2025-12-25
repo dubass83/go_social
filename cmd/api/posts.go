@@ -176,10 +176,10 @@ func (app *application) UpdatePostHandler(w http.ResponseWriter, r *http.Request
 
 	user := getUserFromCtx(r)
 
-	if user.ID != post.UserID {
-		unAuthorizedResponse(w, r, fmt.Errorf("user with ID %d is allowed to update this post", user.ID))
-		return
-	}
+	// if user.ID != post.UserID {
+	// 	unAuthorizedResponse(w, r, fmt.Errorf("user with ID %d is not allowed to update this post", user.ID))
+	// 	return
+	// }
 
 	updatedPost := &store.Post{
 		Title:   post.Title,
