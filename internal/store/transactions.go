@@ -26,8 +26,8 @@ func withTx(db *sql.DB, ctx context.Context, fn func(tx *sql.Tx) error) error {
 
 func createUserTx(ctx context.Context, tx *sql.Tx, user *User) error {
 	query := `
-	INSERT INTO users (username, email, password)
-	VALUES ($1, $2, $3)
+	INSERT INTO users (username, email, password, role_id)
+	VALUES ($1, $2, $3, $4)
 	RETURNING id, created_at
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -39,6 +39,7 @@ func createUserTx(ctx context.Context, tx *sql.Tx, user *User) error {
 		user.Username,
 		user.Email,
 		user.Password,
+		user.RoleID,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,

@@ -43,11 +43,19 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// always create new user with basic permissions
+	userRole, err := app.store.Role.GetByName(r.Context(), "user")
+	if err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+
 	user := &store.User{
 		Username:        payload.Username,
 		Email:           payload.Email,
 		Password:        hashedPassword,
 		ActivationToken: util.GenerateToken(rand.Int64N(100)),
+		RoleID:          int(userRole.ID),
 	}
 
 	if err := app.store.User.CreateAndInviteTx(r.Context(), user); err != nil {
