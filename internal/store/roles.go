@@ -23,7 +23,7 @@ func NewRolesStore(db *sql.DB) *RolesStore {
 func (s *RolesStore) GetByName(ctx context.Context, name string) (*Role, error) {
 	var role Role
 	query := `
-	SELECT name,level
+	SELECT id, name, level, description
 	FROM roles
 	WHERE name = $1
 	`
