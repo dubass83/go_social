@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dubass83/go_social/internal/store"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -59,7 +60,7 @@ func (app *application) AuthTokenMiddelware(next http.Handler) http.Handler {
 		userID, _ := strconv.ParseInt(strconv.Itoa(int(claims["sub"].(float64))), 10, 64)
 		ctx := r.Context()
 
-		user, err := app.store.User.GetByID(ctx, userID)
+		user, err := app.GetUserFromCacheByID(ctx, userID)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to get user")
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -101,3 +102,30 @@ func (app *application) checkPostOwnership(requiredRole string, next http.Handle
 //      allowed, err := app.store.Role.IsPrecedent(ctx, user.RoleID, roleName)
 //      return allowed, err
 // }
+
+func (app *application) GetUserFromCacheByID(ctx context.Context, userID int64) (*store.User, error) {
+	// Try cache first
+	log.Debug().Int64("user_id", userID).Msg("Checking cache for user")
+	user, err := app.cache.User.Get(ctx, userID)
+	if err != nil {
+		log.Warn().Err(err).Int64("user_id", userID).Msg("Failed to get user from cache")
+	}
+	if user != nil {
+		return user, nil
+	}
+
+	// Cache miss or cache disabled - fetch from database
+	log.Debug().Int64("user_id", userID).Bool("CACHE_ENABLE", app.config.cache.enable).Msg("Cache miss or cache disabled - fetching from database")
+	user, err = app.store.User.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store in cache (fire and forget)
+	err = app.cache.User.Set(ctx, user)
+	if err != nil {
+		log.Warn().Err(err).Int64("user_id", userID).Msg("Failed to set user in cache")
+	}
+
+	return user, nil
+}
