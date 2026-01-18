@@ -50,8 +50,8 @@ func main() {
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "10m"),
 		},
 		cache: cacheConf{
-			addr:   env.GetString("CACHE_ADDR", "redis://localhost:6379"),
-			pw:     env.GetString("CACHE_PASSWORD", "password"),
+			addr:   env.GetString("CACHE_ADDR", "localhost:6379"),
+			pw:     env.GetString("CACHE_PASSWORD", ""),
 			db:     env.GetInt("CACHE_DB", 0),
 			enable: env.GetBool("CACHE_ENABLE", false),
 		},
