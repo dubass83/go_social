@@ -16,6 +16,6 @@ type StoreCache struct {
 
 func NewStoreCache(rdb *redis.Client) *StoreCache {
 	return &StoreCache{
-		User: &userCache{rdb: rdb},
+		User: NewUserCache(rdb),
 	}
 }
