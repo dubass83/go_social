@@ -7,6 +7,7 @@ import (
 
 	"github.com/dubass83/go_social/docs"
 	"github.com/dubass83/go_social/internal/auth"
+	"github.com/dubass83/go_social/internal/cache"
 	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
@@ -19,6 +20,7 @@ import (
 type application struct {
 	config        config
 	store         *store.Storage
+	cache         *cache.StoreCache
 	mailer        mailer.EmailSender
 	authenticator auth.Authenticator
 }
@@ -31,6 +33,7 @@ type config struct {
 	db          dbConf
 	mail        mailer.MailConf
 	auth        authConf
+	cache       cacheConf
 }
 
 type dbConf struct {
@@ -38,6 +41,13 @@ type dbConf struct {
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string
+}
+
+type cacheConf struct {
+	addr   string
+	pw     string
+	db     int
+	enable bool
 }
 
 type authConf struct {

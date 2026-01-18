@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"github.com/dubass83/go_social/internal/auth"
+	"github.com/dubass83/go_social/internal/cache"
 	"github.com/dubass83/go_social/internal/db"
 	"github.com/dubass83/go_social/internal/env"
 	"github.com/dubass83/go_social/internal/mailer"
 	"github.com/dubass83/go_social/internal/store"
+	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -46,6 +48,12 @@ func main() {
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "10m"),
+		},
+		cache: cacheConf{
+			addr:   env.GetString("CACHE_ADDR", "redis://localhost:6379"),
+			pw:     env.GetString("CACHE_PASSWORD", "password"),
+			db:     env.GetInt("CACHE_DB", 0),
+			enable: env.GetBool("CACHE_ENABLE", false),
 		},
 		mail: mailer.MailConf{
 			EmailService:   env.GetString("MAIL_SERVICE", "mailtrap"),
@@ -85,7 +93,15 @@ func main() {
 		conf.db.maxIdleConns,
 		conf.db.maxIdleTime,
 	)
-
+	// Cache
+	var rds *redis.Client
+	if conf.cache.enable {
+		rds = cache.NewRedisClient(
+			conf.cache.addr,
+			conf.cache.pw,
+			conf.cache.db,
+		)
+	}
 	if err != nil {
 		log.Debug().Msgf("db config: %v", conf.db)
 		log.Fatal().Err(err).Msg("failed to connect to database")
@@ -94,12 +110,14 @@ func main() {
 	log.Info().Msg("database connection established")
 
 	store := store.NewStorage(db)
+	storeCache := cache.NewStoreCache(rds)
 
 	jwt := auth.NewJWTAuthenticator(conf.auth.jwt.secret, tokenHost, tokenHost)
 
 	app := &application{
 		config:        conf,
 		store:         store,
+		cache:         storeCache,
 		mailer:        mailer,
 		authenticator: jwt,
 	}
