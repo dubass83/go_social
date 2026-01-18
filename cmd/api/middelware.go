@@ -115,7 +115,10 @@ func (app *application) GetUserFromCacheByID(ctx context.Context, userID int64) 
 	}
 
 	// Cache miss or cache disabled - fetch from database
-	log.Debug().Int64("user_id", userID).Bool("CACHE_ENABLE", app.config.cache.enable).Msg("Cache miss or cache disabled - fetching from database")
+	log.Debug().
+		Int64("user_id", userID).
+		Bool("CACHE_ENABLE", app.config.cache.enable).
+		Msg("Cache miss or cache disabled - fetching from database")
 	user, err = app.store.User.GetByID(ctx, userID)
 	if err != nil {
 		return nil, err
