@@ -50,7 +50,7 @@ repl: start_db migrate_up
 	air
 
 ## test: runs all tests
-test: start_db migrate_up
+test:
 	go test -v ./...
 
 race_test: start_db
