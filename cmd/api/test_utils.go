@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dubass83/go_social/internal/auth"
 	"github.com/dubass83/go_social/internal/cache"
 	"github.com/dubass83/go_social/internal/store"
 )
@@ -14,10 +15,12 @@ func newTestApplication(t *testing.T) *application {
 
 	mockStorage := store.NewMockStorage()
 	mockCache := cache.NewMockStoreCache()
+	testAuth := &auth.TestAuthenticator{}
 
 	return &application{
-		store: mockStorage,
-		cache: mockCache,
+		store:         mockStorage,
+		cache:         mockCache,
+		authenticator: testAuth,
 	}
 }
 
