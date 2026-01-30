@@ -26,7 +26,7 @@ func (ta *TestAuthenticator) GenerateToken(claims jwt.Claims) (string, error) {
 		log.Error().Err(err).Msg("Failed to generate token")
 		return "", err
 	}
-	log.Debug().Msgf("Generated token: %s", tokenString)
+	// log.Debug().Msgf("Generated token: %s", tokenString)
 	return tokenString, nil
 }
 
