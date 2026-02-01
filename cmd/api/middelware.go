@@ -111,6 +111,7 @@ func (app *application) GetUserFromCacheByID(ctx context.Context, userID int64) 
 		log.Warn().Err(err).Int64("user_id", userID).Msg("Failed to get user from cache")
 	}
 	if user != nil {
+		log.Debug().Int64("user", user.ID).Msg("User found in cache")
 		return user, nil
 	}
 
