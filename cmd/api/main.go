@@ -120,7 +120,7 @@ func main() {
 
 	jwt := auth.NewJWTAuthenticator(conf.auth.jwt.secret, tokenHost, tokenHost)
 
-	rateLimiter := ratelimiter.NewFixwedWindowLimeter(conf.rateLimiter)
+	rateLimiter := ratelimiter.NewFixedWindowLimeter(conf.rateLimiter)
 
 	app := &application{
 		config:        conf,

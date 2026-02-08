@@ -11,7 +11,7 @@ type fixedWindowLimiter struct {
 	sync.RWMutex
 }
 
-func NewFixwedWindowLimeter(config Config) Limiter {
+func NewFixedWindowLimeter(config Config) Limiter {
 	return &fixedWindowLimiter{
 		clients: make(map[string]int),
 		config:  config,
