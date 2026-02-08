@@ -56,6 +56,9 @@ test:
 race_test: start_db
 	go test -race -v ./...
 
+perf_test:
+	npx autocannon -r 200 -d 2 -c 10 --renderStatusCodes http://localhost:8080/
+
 start_db:
 	@echo "Starting database..."
 	@docker-compose up -d db

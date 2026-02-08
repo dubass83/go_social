@@ -133,3 +133,18 @@ func (app *application) GetUserFromCacheByID(ctx context.Context, userID int64) 
 
 	return user, nil
 }
+
+func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.config.rateLimiter.Enabled {
+			allowed, time := app.rateLimiter.Allow(r.RemoteAddr)
+			if !allowed {
+				log.Warn().Msgf("Rate limit exceeded for IP %s need wait %s", r.RemoteAddr, time)
+				w.Header().Set("Retry-After", time.String())
+				http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}

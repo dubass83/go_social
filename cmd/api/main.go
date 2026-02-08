@@ -9,6 +9,7 @@ import (
 	"github.com/dubass83/go_social/internal/db"
 	"github.com/dubass83/go_social/internal/env"
 	"github.com/dubass83/go_social/internal/mailer"
+	ratelimiter "github.com/dubass83/go_social/internal/rateLimiter"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog"
@@ -73,6 +74,11 @@ func main() {
 				expiry: time.Duration(env.GetInt("JWT_EXPIRY", 3600)) * time.Second,
 			},
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestPerTimeFrame: env.GetInt("RATE_LIMIT_REQUESTS", 100),
+			TimeFrame:           time.Duration(env.GetInt("RATE_LIMIT_TIMEFRAME", 60)) * time.Second,
+			Enabled:             env.GetBool("RATE_LIMIT_ENABLE", true),
+		},
 	}
 
 	// Logger
@@ -114,12 +120,15 @@ func main() {
 
 	jwt := auth.NewJWTAuthenticator(conf.auth.jwt.secret, tokenHost, tokenHost)
 
+	rateLimiter := ratelimiter.NewFixwedWindowLimeter(conf.rateLimiter)
+
 	app := &application{
 		config:        conf,
 		store:         store,
 		cache:         storeCache,
 		mailer:        mailer,
 		authenticator: jwt,
+		rateLimiter:   rateLimiter,
 		shutdown:      make(chan error),
 	}
 

@@ -13,6 +13,7 @@ import (
 	"github.com/dubass83/go_social/internal/auth"
 	"github.com/dubass83/go_social/internal/cache"
 	"github.com/dubass83/go_social/internal/mailer"
+	ratelimiter "github.com/dubass83/go_social/internal/rateLimiter"
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -27,6 +28,7 @@ type application struct {
 	cache         *cache.StoreCache
 	mailer        mailer.EmailSender
 	authenticator auth.Authenticator
+	rateLimiter   ratelimiter.Limiter
 	shutdown      chan error
 }
 
@@ -39,6 +41,7 @@ type config struct {
 	mail        mailer.MailConf
 	auth        authConf
 	cache       cacheConf
+	rateLimiter ratelimiter.Config
 }
 
 type dbConf struct {
@@ -102,6 +105,7 @@ func (app *application) mount() http.Handler {
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(app.RateLimiterMiddleware)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
