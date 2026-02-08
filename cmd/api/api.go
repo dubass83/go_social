@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/dubass83/go_social/docs"
@@ -23,6 +27,7 @@ type application struct {
 	cache         *cache.StoreCache
 	mailer        mailer.EmailSender
 	authenticator auth.Authenticator
+	shutdown      chan error
 }
 
 type config struct {
@@ -163,6 +168,19 @@ func (app *application) run(mux http.Handler) error {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
 	}
+
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		s := <-quit
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		log.Info().Msgf("signal caught: %s", s.String())
+		app.shutdown <- srv.Shutdown(ctx)
+	}()
+
 	log.Info().Msgf("starting server on %s", app.config.addr)
 	return srv.ListenAndServe()
 }

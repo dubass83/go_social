@@ -120,9 +120,16 @@ func main() {
 		cache:         storeCache,
 		mailer:        mailer,
 		authenticator: jwt,
+		shutdown:      make(chan error),
 	}
 
 	if err := app.run(app.mount()); err != nil {
-		log.Fatal().Err(err).Msg("failed to run application")
+		time.Sleep(time.Second)
+		select {
+		case <-app.shutdown:
+			log.Info().Msg("prepare for graceful shutdown")
+		default:
+			log.Fatal().Err(err).Msg("failed to run application")
+		}
 	}
 }
