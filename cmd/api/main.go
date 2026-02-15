@@ -16,10 +16,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	version   = "0.1.0"
-	tokenHost = "goSocial"
-)
+const version = "0.1.0"
+const tokenHost = "goSocial"
 
 //	@title			GO Social Study App
 //	@description	This is a sample server Go Social server.
