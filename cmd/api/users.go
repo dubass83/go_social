@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/dubass83/go_social/internal/store"
 	"github.com/go-chi/chi/v5"
@@ -69,30 +67,30 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (app *application) userContextMiddelware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)
-		if err != nil {
-			badRequestResponse(w, r, err)
-			return
-		}
+// func (app *application) userContextMiddelware(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		userID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)
+// 		if err != nil {
+// 			badRequestResponse(w, r, err)
+// 			return
+// 		}
 
-		user, err := app.store.User.GetByID(r.Context(), userID)
-		if err != nil {
-			switch err {
-			case store.ErrNotFound:
-				notFoundResponse(w, r, err)
-				return
-			default:
-				internalServerError(w, r, err)
-				return
-			}
-		}
+// 		user, err := app.store.User.GetByID(r.Context(), userID)
+// 		if err != nil {
+// 			switch err {
+// 			case store.ErrNotFound:
+// 				notFoundResponse(w, r, err)
+// 				return
+// 			default:
+// 				internalServerError(w, r, err)
+// 				return
+// 			}
+// 		}
 
-		ctx := context.WithValue(r.Context(), UserCtxKey, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
+// 		ctx := context.WithValue(r.Context(), UserCtxKey, user)
+// 		next.ServeHTTP(w, r.WithContext(ctx))
+// 	})
+// }
 
 func getUserFromCtx(r *http.Request) *store.User {
 	user := r.Context().Value(UserCtxKey).(*store.User)
