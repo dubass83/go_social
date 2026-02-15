@@ -12,6 +12,7 @@ import (
 	"github.com/dubass83/go_social/docs"
 	"github.com/dubass83/go_social/internal/auth"
 	"github.com/dubass83/go_social/internal/cache"
+	"github.com/dubass83/go_social/internal/env"
 	"github.com/dubass83/go_social/internal/mailer"
 	ratelimiter "github.com/dubass83/go_social/internal/rateLimiter"
 	"github.com/dubass83/go_social/internal/store"
@@ -86,26 +87,24 @@ type createTokenPayload struct {
 
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 	// Basic CORS
 	r.Use(cors.Handler(cors.Options{
-		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"https://*", "http://*"},
-		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedOrigins:   []string{env.GetString("CORS_ALLOWED_ORIGIN", app.config.frontendURL)},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(app.RateLimiterMiddleware)
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(app.RateLimiterMiddleware)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
