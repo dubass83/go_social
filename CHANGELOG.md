@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/dubass83/go_social/compare/v1.0.0...v1.1.0) (2026-02-15)
+
+
+### Features
+
+* add workflow to update api version ([bd43f7e](https://github.com/dubass83/go_social/commit/bd43f7e286cd710f17dd993d3deb75d183504b5e))
+
 ## 1.0.0 (2026-02-15)
 
 
