@@ -16,7 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const version = "0.1.0"
+const version = ""
 const tokenHost = "goSocial"
 
 //	@title			GO Social Study App
