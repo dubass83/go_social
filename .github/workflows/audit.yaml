@@ -23,7 +23,7 @@ jobs:
         run: go mod verify
 
       - name: Run Go Build
-        run: go build -v ./...
+        run: go build -v ./cmd/api
 
       - name: Run Go Vet
         run: go vet ./...
