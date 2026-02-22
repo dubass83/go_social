@@ -130,6 +130,7 @@ func (app *application) mount() http.Handler {
 		r.Route("/users", func(r chi.Router) {
 			r.Put("/activate/{token}", app.activateUserHandler)
 			r.Get("/activate/{token}", app.activateUserHandler)
+			r.With(app.AuthTokenMiddelware).Get("/me", app.GetUserByIDHandler)
 			r.Route("/{userID}", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddelware)
 				// r.Use(app.userContextMiddelware)
