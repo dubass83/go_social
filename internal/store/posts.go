@@ -195,6 +195,69 @@ func (ps *PostsStore) GetUserPosts(ctx context.Context, userID int64, pg Paginat
 	return posts, nil
 }
 
+func (ps *PostsStore) GetAllPosts(ctx context.Context, pg PaginatedFeedQuery) ([]*PostWithMetadata, error) {
+	var tagsCondition string
+
+	if len(pg.Tags) == 0 {
+		tagsCondition = "($5 = $5 OR TRUE)"
+	} else {
+		tagsCondition = "(p.tags @> $5)"
+	}
+
+	query := `
+	SELECT
+      p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags,
+      u.username,
+      COUNT(c.id) AS comments_count
+    FROM posts p
+    LEFT JOIN users u ON u.id = p.user_id
+    LEFT JOIN comments c ON p.id = c.post_id
+    WHERE
+      (p.title ILIKE '%' || $4 || '%' OR p.content ILIKE '%' || $4 || '%')
+      AND ` + tagsCondition + `
+    GROUP BY p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags, u.username
+    ORDER BY p.created_at ` + pg.Sort + `, p.id ` + pg.Sort + `
+    LIMIT $2 OFFSET $3;
+    `
+
+	log.Debug().Msgf("limit: %d, offset: %d, tags: %+v, search: '%s'",
+		pg.Limit, pg.Offset, pg.Tags, pg.Search)
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	rows, err := ps.db.QueryContext(ctx, query, pg.Limit, pg.Offset, pg.Search, pq.Array(pg.Tags))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	posts := []*PostWithMetadata{}
+	for rows.Next() {
+		p := &PostWithMetadata{}
+		err = rows.Scan(
+			&p.ID,
+			&p.UserID,
+			&p.Title,
+			&p.Content,
+			&p.CreatedAt,
+			&p.Version,
+			pq.Array(&p.Tags),
+			&p.User.Username,
+			&p.CommentsCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, p)
+	}
+	// Check for any iteration errors
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
 func (ps *PostsStore) GetByID(ctx context.Context, id string) (*Post, error) {
 	query := `
 	SELECT id, title, content, created_at, updated_at, user_id, version, tags

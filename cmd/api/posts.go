@@ -69,6 +69,55 @@ func (app *application) CreatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// GetAllPostsHandler godoc
+//
+//	@Summary		Get a paginated list of all posts
+//	@Description	Return a paginated list of all posts (not filtered by follows), useful as a public discovery feed for new users who do not follow anyone yet.
+//	@Tags			POSTS
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit	query		int		false	"Limit number of posts"	default(10)
+//	@Param			offset	query		int		false	"Offset for pagination"	default(0)
+//	@Param			sort	query		string	false	"Sort order (asc/desc)"	default(desc)
+//	@Param			tags	query		string	false	"Filter by tags (comma-separated)"
+//	@Param			search	query		string	false	"Search query"
+//	@Success		200		{object}    []*store.PostWithMetadata
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/posts [get]
+func (app *application) GetAllPostsHandler(w http.ResponseWriter, r *http.Request) {
+	pgPostsQueryDefault := store.PaginatedFeedQuery{
+		Limit:  10,
+		Offset: 0,
+		Sort:   "desc",
+	}
+
+	pgPostsQuery, err := pgPostsQueryDefault.Parse(r)
+	if err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := validate.Struct(pgPostsQuery); err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	posts, err := app.store.Post.GetAllPosts(ctx, pgPostsQuery)
+
+	if err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+
+	if err := app.jsonResponse(w, http.StatusOK, posts); err != nil {
+		internalServerError(w, r, err)
+		return
+	}
+}
+
 // GetPostByIDHandler godoc
 //
 //	@Summary		Show a post with comments

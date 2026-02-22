@@ -20,6 +20,7 @@ type Storage struct {
 		DeleteByID(context.Context, string) error
 		GetUserFeed(context.Context, int64, PaginatedFeedQuery) ([]*PostWithMetadata, error)
 		GetUserPosts(context.Context, int64, PaginatedFeedQuery) ([]*PostWithMetadata, error)
+		GetAllPosts(context.Context, PaginatedFeedQuery) ([]*PostWithMetadata, error)
 	}
 	User interface {
 		Create(context.Context, *User) error
