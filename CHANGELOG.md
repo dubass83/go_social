@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/dubass83/go_social/compare/v1.2.0...v1.3.0) (2026-02-22)
+
+
+### Features
+
+* **web:** style confirmation page to match site design ([58d4390](https://github.com/dubass83/go_social/commit/58d43900e8638dc6bcce694ac234eb983e5eeca8))
+
 ## [1.2.0](https://github.com/dubass83/go_social/compare/v1.1.0...v1.2.0) (2026-02-22)
 
 
