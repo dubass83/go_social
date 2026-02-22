@@ -103,3 +103,8 @@ seed:
 
 gen-docs:
 	@swag init -g ./api/main.go -d cmd,internal && swag fmt
+
+## web: Start the web UI development server
+web:
+	@echo "Starting web UI..."
+	@cd web && npm run dev
