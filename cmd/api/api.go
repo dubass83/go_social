@@ -137,6 +137,7 @@ func (app *application) mount() http.Handler {
 				r.Get("/", app.GetUserByIDHandler)
 				r.Put("/follow", app.FollowUserByIDHandler)
 				r.Put("/unfollow", app.UnfollowUserByIDHandler)
+				r.Get("/posts", app.GetUsersPostsHandler)
 				// r.Delete("/", app.DeletePostHandler)
 				// r.Patch("/", app.UpdatePostHandler)
 				// r.Post("/comments", app.CreateCommentToPostByIDHandler)
