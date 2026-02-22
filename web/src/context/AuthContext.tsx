@@ -5,7 +5,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { getUser } from "../api";
+import { getMe } from "../api";
 import type { User } from "../types";
 
 interface AuthContextType {
@@ -17,15 +17,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-function decodeJwt(token: string): { sub: string; exp: number } | null {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload;
-  } catch {
-    return null;
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
@@ -40,16 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const payload = decodeJwt(token);
-    if (!payload || payload.exp * 1000 < Date.now()) {
-      localStorage.removeItem("token");
-      setToken(null);
-      setLoading(false);
-      return;
-    }
-
-    const userID = parseInt(payload.sub, 10);
-    getUser(userID)
+    getMe()
       .then(setUser)
       .catch(() => {
         localStorage.removeItem("token");

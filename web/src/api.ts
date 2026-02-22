@@ -43,11 +43,36 @@ export async function register(
 
 // --- Users ---
 
+export async function getMe(): Promise<User> {
+  const res = await fetch(`${API_URL}/users/me`, {
+    headers: requestHeaders(),
+  });
+  return handleResponse<User>(res);
+}
+
 export async function getUser(userID: number): Promise<User> {
   const res = await fetch(`${API_URL}/users/${userID}`, {
     headers: requestHeaders(),
   });
   return handleResponse<User>(res);
+}
+
+export async function getUserPosts(
+  userID: number,
+  params: FeedParams = {}
+): Promise<PostWithMetadata[]> {
+  const query = new URLSearchParams();
+  if (params.limit != null) query.set("limit", String(params.limit));
+  if (params.offset != null) query.set("offset", String(params.offset));
+  if (params.sort) query.set("sort", params.sort);
+  if (params.tags) query.set("tags", params.tags);
+  if (params.search) query.set("search", params.search);
+
+  const res = await fetch(`${API_URL}/users/${userID}/posts?${query}`, {
+    headers: requestHeaders(),
+  });
+  const data = await handleResponse<PostWithMetadata[] | null>(res);
+  return data ?? [];
 }
 
 export async function followUser(userID: number): Promise<void> {
@@ -64,6 +89,23 @@ export async function unfollowUser(userID: number): Promise<void> {
     headers: requestHeaders(),
   });
   return handleResponse<void>(res);
+}
+
+// --- Public posts ---
+
+export async function getAllPosts(
+  params: FeedParams = {}
+): Promise<PostWithMetadata[]> {
+  const query = new URLSearchParams();
+  if (params.limit != null) query.set("limit", String(params.limit));
+  if (params.offset != null) query.set("offset", String(params.offset));
+  if (params.sort) query.set("sort", params.sort);
+  if (params.tags) query.set("tags", params.tags);
+  if (params.search) query.set("search", params.search);
+
+  const res = await fetch(`${API_URL}/posts?${query}`);
+  const data = await handleResponse<PostWithMetadata[] | null>(res);
+  return data ?? [];
 }
 
 // --- Feed ---

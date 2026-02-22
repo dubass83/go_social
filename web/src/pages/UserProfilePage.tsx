@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { followUser, getUser, unfollowUser } from "../api";
+import { followUser, getUser, getUserPosts, unfollowUser } from "../api";
+import { PostCard } from "../components/PostCard";
 import { useAuth } from "../context/AuthContext";
-import type { User } from "../types";
+import type { PostWithMetadata, User } from "../types";
+
+const PAGE_SIZE = 10;
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -16,26 +19,53 @@ export function UserProfilePage() {
   const { user: currentUser } = useAuth();
 
   const [profile, setProfile] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  const [posts, setPosts] = useState<PostWithMetadata[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [postsError, setPostsError] = useState<string | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [followError, setFollowError] = useState<string | null>(null);
 
+  const parsedID = parseInt(userID ?? "0", 10);
+
   useEffect(() => {
     if (!userID) return;
-    setLoading(true);
-    setFollowError(null);
-    getUser(parseInt(userID, 10))
+    setProfileLoading(true);
+    setProfileError(null);
+    getUser(parsedID)
       .then(setProfile)
       .catch((err) =>
-        setError(err instanceof Error ? err.message : "User not found")
+        setProfileError(err instanceof Error ? err.message : "User not found")
       )
-      .finally(() => setLoading(false));
+      .finally(() => setProfileLoading(false));
   }, [userID]);
 
-  const isOwnProfile = currentUser?.id === parseInt(userID ?? "0", 10);
+  const loadPosts = (newOffset: number) => {
+    if (!userID) return;
+    setPostsLoading(true);
+    setPostsError(null);
+    getUserPosts(parsedID, { limit: PAGE_SIZE, offset: newOffset, sort: "desc" })
+      .then((data) => {
+        setPosts(data);
+        setHasMore(data.length === PAGE_SIZE);
+      })
+      .catch((err) =>
+        setPostsError(err instanceof Error ? err.message : "Failed to load posts")
+      )
+      .finally(() => setPostsLoading(false));
+  };
+
+  useEffect(() => {
+    loadPosts(0);
+  }, [userID]);
+
+  const isOwnProfile = currentUser?.id === parsedID;
 
   const handleFollowToggle = async () => {
     if (!profile) return;
@@ -50,82 +80,107 @@ export function UserProfilePage() {
         setFollowing(true);
       }
     } catch (err) {
-      setFollowError(
-        err instanceof Error ? err.message : "Action failed"
-      );
+      setFollowError(err instanceof Error ? err.message : "Action failed");
     } finally {
       setFollowLoading(false);
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading…</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  const handlePrev = () => {
+    const newOffset = Math.max(0, offset - PAGE_SIZE);
+    setOffset(newOffset);
+    loadPosts(newOffset);
+  };
+
+  const handleNext = () => {
+    const newOffset = offset + PAGE_SIZE;
+    setOffset(newOffset);
+    loadPosts(newOffset);
+  };
+
+  if (profileLoading) return <div className="loading-spinner">Loading…</div>;
+  if (profileError) return <div className="error-message">{profileError}</div>;
   if (!profile) return null;
 
   const initial = profile.username.charAt(0).toUpperCase();
 
   return (
-    <div className="user-profile">
-      <div className="user-profile-header">
-        <div>
-          <div className="user-avatar">{initial}</div>
-          <h1>{profile.username}</h1>
-          <div className="user-email">{profile.email}</div>
-          <div
-            className="text-secondary"
-            style={{ marginTop: 6, fontSize: 13 }}
-          >
-            Joined {formatDate(profile.created_at)}
-          </div>
-          {!profile.active && (
-            <div
-              className="text-secondary"
-              style={{ marginTop: 6, fontSize: 13, color: "#f59e0b" }}
-            >
-              Account not yet activated
-            </div>
-          )}
-        </div>
-
-        {!isOwnProfile && currentUser && (
+    <>
+      <div className="user-profile">
+        <div className="user-profile-header">
           <div>
+            <div className="user-avatar">{initial}</div>
+            <h1>{profile.username}</h1>
+            <div className="user-email">{profile.email}</div>
+            <div className="text-secondary" style={{ marginTop: 6 }}>
+              Joined {formatDate(profile.created_at)}
+            </div>
+            {!profile.active && (
+              <div style={{ marginTop: 6, fontSize: 13, color: "#f59e0b" }}>
+                Account not yet activated
+              </div>
+            )}
+          </div>
+
+          {!isOwnProfile && currentUser && (
             <button
               className={following ? "btn btn-secondary" : "btn btn-primary"}
               onClick={handleFollowToggle}
               disabled={followLoading}
             >
-              {followLoading
-                ? "…"
-                : following
-                ? "Unfollow"
-                : "Follow"}
+              {followLoading ? "…" : following ? "Unfollow" : "Follow"}
             </button>
+          )}
+        </div>
+
+        {followError && (
+          <div className="error-message" style={{ marginTop: 12 }}>
+            {followError}
           </div>
         )}
       </div>
 
-      {followError && (
-        <div className="error-message" style={{ marginTop: 12 }}>
-          {followError}
-        </div>
-      )}
+      <div style={{ marginTop: 16 }}>
+        <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>
+          Posts by {profile.username}
+        </h2>
 
-      <div
-        style={{
-          marginTop: 24,
-          padding: "20px",
-          background: "#f8fafc",
-          borderRadius: 8,
-          border: "1px dashed #cbd5e1",
-          color: "#64748b",
-          fontSize: 14,
-        }}
-      >
-        <strong>Posts by this user are not available yet.</strong>
-        <br />
-        The API endpoint <code>GET /v1/users/{"{userID}"}/posts</code> is not
-        implemented. See <code>MISSING_APIS.md</code> for details.
+        {postsLoading && <div className="loading-spinner">Loading posts…</div>}
+        {postsError && <div className="error-message">{postsError}</div>}
+
+        {!postsLoading && !postsError && posts.length === 0 && (
+          <div className="empty-state">
+            <h3>No posts yet</h3>
+            <p>{profile.username} hasn't published anything.</p>
+          </div>
+        )}
+
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+
+        {!postsLoading && posts.length > 0 && (
+          <div className="pagination">
+            <button
+              className="btn btn-secondary"
+              onClick={handlePrev}
+              disabled={offset === 0}
+            >
+              &larr; Previous
+            </button>
+            <span className="text-secondary">
+              Posts {offset + 1}–{offset + posts.length}
+            </span>
+            <button
+              className="btn btn-secondary"
+              onClick={handleNext}
+              disabled={!hasMore}
+            >
+              Next &rarr;
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
