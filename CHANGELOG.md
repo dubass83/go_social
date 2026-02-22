@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/dubass83/go_social/compare/v1.1.0...v1.2.0) (2026-02-22)
+
+
+### Features
+
+* add api endpoint to get information about loged in user ([ec2d38d](https://github.com/dubass83/go_social/commit/ec2d38d26393a392236186222d638482687af1b9))
+* add method to fetch all posts authored by a specific user, for ([b904763](https://github.com/dubass83/go_social/commit/b9047633d7850181a264752f945e94d67248041b))
+* add method which return a paginated list of all posts (not ([941ab10](https://github.com/dubass83/go_social/commit/941ab109366e81e1bc94a87f83fbfaba40a491ac))
+* **web:** implement React web UI for the social platform ([0d1416d](https://github.com/dubass83/go_social/commit/0d1416d2be50bcbfd9b9c6b6fa01c90d194f212d))
+* **web:** wire up newly implemented backend endpoints ([3f3357c](https://github.com/dubass83/go_social/commit/3f3357c4860e9fa7736d180492446a753dda2956))
+
+
+### Bug Fixes
+
+* add group to the the chi routes ([c82b9e5](https://github.com/dubass83/go_social/commit/c82b9e568c88cf432059227d021da8b5b5fafdce))
+
 ## [1.1.0](https://github.com/dubass83/go_social/compare/v1.0.0...v1.1.0) (2026-02-15)
 
 
