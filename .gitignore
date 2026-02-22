@@ -33,6 +33,9 @@ go.work.sum
 # .idea/
 .vscode/
 
+# Claude AI workspace
+.claude/
+
 # Swagger documentation
 docs/*.json
 docs/*.yaml
